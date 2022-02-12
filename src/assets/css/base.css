@@ -1,0 +1,25 @@
+:root {
+  --white: #ffffff;
+  --black: #181818;
+}
+
+/* semantic color variables for this project */
+:root {
+  --color-background: var(--white);
+  --color-text: var(--black);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--black);
+    --color-text: var(--white);
+  }
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  line-height: 1.6;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
