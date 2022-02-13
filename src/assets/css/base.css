@@ -1,25 +1,52 @@
 :root {
-  --white: #ffffff;
-  --black: #181818;
+  --gray050: #fafafa;
+  --gray100: #e5e5ea;
+  --gray200: #C7C7CC;
+  --gray300: #AEAEB2;
+  --gray400: #8e8e93;
+  --gray500: #636366;
+  --gray600: #48484A;
+  --gray700: #3A3a3c;
+  --gray800: #2c2c2e;
+  --gray900: #1c1c1e;
+  --gray950: #101011;
+
+  --aqua-green: #00e388;
+  --green: #4AA96C;
+  --red: #F55C47;
 }
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--white);
-  --color-text: var(--black);
+  --color-background: var(--gray050);
+  --color-text: var(--gray900);
+  --color-link: var(--green);
+  --color-navbar-background: var(--gray100);
+  --color-navbar-hover-background: var(--gray200);
+  --color-footer-background: var(--gray100);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--black);
-    --color-text: var(--white);
+    --color-background: var(--gray900);
+    --color-text: var(--gray050);
+    --color-link: var(--aqua-green);
+    --color-navbar-background: var(--gray800);
+    --color-navbar-hover-background: var(--gray950);
+    --color-footer-background: var(--gray800);
   }
 }
 
+
 body {
   min-height: 100vh;
+  margin: 0;
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.6;
   font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+a {
+  color: var(--color-link);
 }
