@@ -5,5 +5,7 @@ import TheWelcome from "@/components/Footer.vue";
 <template>
   <main>
     <h1>Home</h1>
+    <button>This is a Button</button>
+    This is text
   </main>
 </template>

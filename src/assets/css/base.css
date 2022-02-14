@@ -21,22 +21,35 @@
   --color-background: var(--gray050);
   --color-text: var(--gray900);
   --color-link: var(--green);
+
+  --color-button-border: var(--gray300);
+  --color-button-background: var(--gray600);
+  --color-button-background-hover: var(--gray500);
+  --color-button-text: var(--gray050);
+
   --color-navbar-background: var(--gray100);
   --color-navbar-hover-background: var(--gray200);
   --color-footer-background: var(--gray100);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--gray900);
-    --color-text: var(--gray050);
-    --color-link: var(--aqua-green);
-    --color-navbar-background: var(--gray800);
-    --color-navbar-hover-background: var(--gray950);
-    --color-footer-background: var(--gray800);
-  }
+:root[theme="dark"]{
+  --color-background: var(--gray900);
+  --color-text: var(--gray050);
+  --color-link: var(--aqua-green);
+
+  --color-button-border: var(--gray500);
+  --color-button-background: var(--gray200);
+  --color-button-background-hover: var(--gray300);
+  --color-button-text: var(--gray900);
+
+  --color-navbar-background: var(--gray800);
+  --color-navbar-hover-background: var(--gray950);
+  --color-footer-background: var(--gray800);
 }
 
+html {
+  font-size: 16px;
+}
 
 body {
   min-height: 100vh;
@@ -49,4 +62,24 @@ body {
 
 a {
   color: var(--color-link);
+}
+
+button {
+  border-radius: 0.4rem;
+  border-style: solid;
+  border-width: 3px;
+  background-color: var(--color-button-background);
+  color: var(--color-button-text);
+  border-color: var(--color-button-border);
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 0.2rem;
+  margin: 0.5rem;
+}
+
+button:hover{
+  background-color: var(--color-button-background-hover);
+}
+button:active{
+  background-color: var(--color-button-background);
 }

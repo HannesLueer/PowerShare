@@ -3,18 +3,18 @@
 </script>
 
 <template>
-    <div class="footer">
-        <p>Author: Hannes Lüer</p>
-        <hr>
-        <p>
-            Mail:
-            <a href="mailto:hannes-lueer+PowerShare@outlook.de"
-            >hannes-lueer@outlook.de</a
-            >
-        </p>
-        <hr>
-        <p>{{ new Date().getFullYear() }}</p>
-    </div>
+  <div class="footer">
+    <p>Author: Hannes Lüer</p>
+    <hr>
+    <p>
+      Mail:
+      <a href="mailto:hannes-lueer+PowerShare@outlook.de">
+        hannes-lueer@outlook.de
+      </a>
+    </p>
+    <hr>
+    <p>{{ new Date().getFullYear() }}</p>
+  </div>
 </template>
 
 <style scoped>
