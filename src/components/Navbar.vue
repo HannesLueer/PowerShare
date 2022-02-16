@@ -8,11 +8,11 @@ function detectColorScheme() {
   if (localStorage.getItem("theme")) { // already stored in localstorage
     theme = localStorage.getItem("theme") || "dark";
   } else {
-    if (window.matchMedia) { // matchMedia method supported
+    if (window.matchMedia) {  // matchMedia method supported
       theme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
-    } else{ // matchMedia method not supported
+    } else {  // matchMedia method not supported
       theme = "dark";
     }
   }
@@ -47,8 +47,8 @@ export default defineComponent({
         { to: "/", text: "Home" },
         { to: "/about", text: "About" },
       ],
-    }
-  }
+    };
+  },
 });
 </script>
 
@@ -71,8 +71,12 @@ export default defineComponent({
 
       <li class="right">
         <button class="themeSwitch" @click="themeButtonClicked">
-          <img id="sun-icon" src="@/assets/img/sun-icon.svg" />
-          <img id="moon-icon" src="@/assets/img/moon-icon.svg" />
+          <svg id="sun-icon" viewBox="0 0 100 100">
+            <use href="@/assets/img/sun-icon.svg#sun"></use>
+          </svg>
+          <svg id="moon-icon" viewBox="0 0 100 100">
+            <use href="@/assets/img/moon-icon.svg#moon"></use>
+          </svg>
         </button>
       </li>
     </ul>
@@ -134,15 +138,35 @@ button.themeSwitch {
   margin: 0.5rem;
 }
 
-[theme="dark"] img#moon-icon {
+[theme="dark"] svg#moon-icon {
   display: none;
 }
 
-[theme="light"] img#sun-icon {
+[theme="light"] svg#sun-icon {
   display: none;
 }
 
-button.themeSwitch img#moon-icon {
-  filter: invert(100%);
+button.themeSwitch svg {
+  fill: var(--color-button-text);
+}
+
+button.themeSwitch svg:hover {
+  animation-name: wiggle;
+  animation-duration: 0.5s;
+}
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(-16deg);
+  }
+  80% {
+    transform: rotate(8deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 </style>
