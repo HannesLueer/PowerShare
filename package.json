@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "http-status-codes": "^2.2.0",
     "vue": "^3.2.29",
     "vue-router": "^4.0.12"
   },
