@@ -70,7 +70,7 @@ export default defineComponent({
       </li>
 
       <li class="right">
-        <button class="themeSwitch" @click="themeButtonClicked">
+        <button class="themeSwitch" @click="themeButtonClicked" aria-label="Theme Switch">
           <svg id="sun-icon" viewBox="0 0 100 100">
             <use href="@/assets/img/sun-icon.svg#sun"></use>
           </svg>
