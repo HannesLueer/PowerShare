@@ -59,15 +59,28 @@ a {
 
 html {
   font-size: 16px;
+  height: 100%;
 }
 
 body {
+  height: 100%;
   min-height: 100vh;
   margin: 0;
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.6;
   font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  word-wrap: break-word;
+}
+
+div#app{
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+div.page-wrap main {
+  height: 100%;
 }
 
 a {

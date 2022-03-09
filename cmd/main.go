@@ -3,6 +3,8 @@ package main
 import (
 	"PowerShare/config"
 	"PowerShare/frontend"
+	"PowerShare/handler/locations"
+	"github.com/gorilla/mux"
 	"io/fs"
 	"log"
 	"mime"
@@ -13,11 +15,17 @@ func main() {
 	// define mime type
 	mime.AddExtensionType(".js", "application/javascript")
 
-	// serve files
-	mux := http.NewServeMux()
-	mux.Handle("/",  http.FileServer(getPWAFileSystem()))
+	r := mux.NewRouter()
 
-	log.Fatalln(http.ListenAndServeTLS(config.PortStr(), config.GetCertFilePath(), config.GetKeyFilePath(), mux))
+	// serve frontend
+	frontend := r.PathPrefix("/").Subrouter()
+	frontend.Handle("/",  http.FileServer(getPWAFileSystem()))
+
+	// serve api
+	api := r.PathPrefix("/api/v1").Subrouter()
+	api.HandleFunc("/locations", locations.LocationsHandler)
+
+	log.Fatalln(http.ListenAndServeTLS(config.PortStr(), config.GetCertFilePath(), config.GetKeyFilePath(), r))
 }
 
 func getPWAFileSystem() http.FileSystem {

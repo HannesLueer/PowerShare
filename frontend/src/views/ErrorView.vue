@@ -1,23 +1,25 @@
 <!-- Based on https://codepen.io/1832Manaswini/pen/Vwezyjx -->
 
 <template>
-  <div class="container">
-    <h1 class="first-number">{{ errNo[0] }}</h1>
-    <div class="cog-wheel">
-      <div class="cog">
-        <div class="top"></div>
-        <div class="down"></div>
-        <div class="left-top"></div>
-        <div class="left-down"></div>
-        <div class="right-top"></div>
-        <div class="right-down"></div>
-        <div class="left"></div>
-        <div class="right"></div>
+  <main>
+    <div class="container">
+      <h1 class="first-number">{{ errNo[0] }}</h1>
+      <div class="cog-wheel">
+        <div class="cog">
+          <div class="top"></div>
+          <div class="down"></div>
+          <div class="left-top"></div>
+          <div class="left-down"></div>
+          <div class="right-top"></div>
+          <div class="right-down"></div>
+          <div class="left"></div>
+          <div class="right"></div>
+        </div>
       </div>
+      <h1 class="third-number">{{ errNo[2] }}</h1>
+      <p class="wrong-para">Uh Oh! {{ errStatusText }}!</p>
     </div>
-    <h1 class="third-number">{{ errNo[2] }}</h1>
-    <p class="wrong-para">Uh Oh! {{ errStatusText }}!</p>
-  </div>
+  </main>  
 </template>
 
 <script setup lang="ts">

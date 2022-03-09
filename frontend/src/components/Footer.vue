@@ -19,9 +19,6 @@
 
 <style scoped>
 .footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
   width: calc(100% - 1em);
   background-color: var(--color-footer-background);
   color: var(--color-text);

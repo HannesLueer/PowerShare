@@ -5,14 +5,23 @@ import Navbar from "./components/Navbar.vue";
 </script>
 
 <template>
-  <Navbar></Navbar>
+  <div class="page-wrap">
+    <Navbar></Navbar>
 
-  <router-view></router-view>
+    <router-view></router-view>
 
-  <Footer></Footer>
+    <Footer></Footer>
+  </div> 
 </template>
 
 <style>
 @import "@/assets/css/base.css";
+</style>
 
+<style scoped>
+div.page-wrap {
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
 </style>
