@@ -46,4 +46,7 @@ bin
 
 # Go workspace file
 go.work
+
+# config secrets
+*.env
 *.pem

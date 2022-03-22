@@ -66,9 +66,11 @@ async function setupMarkers(url: string) {
   const timeout = (props.markersUpdateIntervalSeconds ?? (5 * 60 * 60)) * 1000;
 
   class MarkerData {
-    DisplayName!: string;
-    Name!: string;
-    Coordinate!: { Lat: number; Lng: number };
+    id!: number;
+    title!: string;
+    position!: { Lat: number; Lng: number };
+    cost!: number;
+    isOccupied!: boolean;
   }
 
   let markersData: MarkerData[];
@@ -105,11 +107,11 @@ async function setupMarkers(url: string) {
   function drawMarkers(markersData: MarkerData[]) {
     let markers: L.Layer[] = [];
     markersData.forEach((m) => {
-      let marker = L.marker([m.Coordinate.Lat, m.Coordinate.Lng]).bindPopup(
-        '<a href="/location?' +
-          m.Name +
+      let marker = L.marker([m.position.Lat, m.position.Lng]).bindPopup(
+        '<a href="/location/' +
+          m.id +
           '" target="_blank" rel="noopener">' +
-          m.DisplayName +
+          m.title +
           "</a>"
       );
       markers.push(marker);
@@ -138,6 +140,14 @@ onMounted(async () => {
 @import "leaflet.markercluster/dist/MarkerCluster.css";
 
 /* map */
+.leaflet-container {
+  background: rgb(163, 163, 163);
+}
+
+:root[theme="dark"] .leaflet-container {
+  background: rgb(73, 73, 73);
+}
+
 :root[theme="dark"] div#mapContainer .leaflet-tile {
   /* mapbox */
   /* filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.5) brightness(0.6); */
@@ -185,7 +195,7 @@ onMounted(async () => {
 </style>
 
 <style scoped>
-#mapContainer {
+div {
   width: 100%;
   height: 100%;
 }

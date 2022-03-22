@@ -1,0 +1,17 @@
+package chargingStation
+
+import (
+	"PowerShare/database"
+	"log"
+)
+
+func deleteCharger(id int64) error {
+	sqlStatement := `DELETE FROM chargers WHERE id = $1`
+
+	_, err := database.DB.Exec(sqlStatement, id)
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+
+	return err
+}

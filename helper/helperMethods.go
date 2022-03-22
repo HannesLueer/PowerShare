@@ -2,23 +2,10 @@ package helper
 
 import (
 	"errors"
-	"fmt"
+	"io"
 	"os"
-	"strconv"
+	"path/filepath"
 )
-
-// GetPortString converts the port specified as int to a string and validates it in the process
-func GetPortString(port int) (string, error) {
-	var err error
-	var portStr string
-	if port<0 || port>65535 {
-		err = fmt.Errorf("invalid port %d; must be between 0 an 65535", port)
-	} else{
-		portStr = ":"+strconv.Itoa(port)
-	}
-
-	return portStr, err
-}
 
 // CreateDir creates the specified directory with permissions 0755
 func CreateDir(path string) error{
@@ -38,4 +25,37 @@ func CreateDir(path string) error{
 func Exists(path string) bool {
 	_, err := os.Stat(path)
 	return !errors.Is(err, os.ErrNotExist)
+}
+
+// IsEmpty check is the given directory is empty
+func IsEmpty(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err
+}
+
+// WriteFile creates a file at the given path and writes the data to it
+func WriteFile(data []byte, path string) error {
+	CreateDir(filepath.Dir(filepath.Dir(path)))
+
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(data)
+	if err != nil {
+		file.Close()
+		return err
+	}
+
+	return nil
 }
