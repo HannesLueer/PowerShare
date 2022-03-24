@@ -27,7 +27,7 @@ import { onMounted, ref } from "vue";
 import { getReasonPhrase } from "http-status-codes";
 import { useRoute } from "vue-router";
 
-let errNo = ref<string[]>(["4", "0", "4"])
+let errNo = ref<string[]>(["4", "0", "4"]);
 let errStatusText = ref<string>("Something is wrong");
 
 const getCode = () => {

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch, toRefs } from "vue";
 import L, { map } from "leaflet";
 import "leaflet.locatecontrol";
 import "leaflet.offline";
 import "leaflet.markercluster";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+import router from "@/router";
 
 const props = defineProps<{
   center: L.LatLngExpression;
@@ -13,6 +14,8 @@ const props = defineProps<{
   markersURL?: string;
   markersUpdateIntervalSeconds?: number;
 }>();
+
+const propsRef = toRefs(props);
 
 let mapDiv: L.Map;
 
@@ -27,6 +30,10 @@ function setupLeafletMap() {
       subdomains: ["mt0", "mt1", "mt2", "mt3"],
     }
   ).addTo(mapDiv);
+
+  watch(propsRef.center, async () => {
+    mapDiv.setView(props.center);
+  });
 }
 
 function setupLocation() {
@@ -63,7 +70,7 @@ function setupSearch() {
 }
 
 async function setupMarkers(url: string) {
-  const timeout = (props.markersUpdateIntervalSeconds ?? (5 * 60 * 60)) * 1000;
+  const timeout = (props.markersUpdateIntervalSeconds ?? 5 * 60 * 60) * 1000;
 
   class MarkerData {
     id!: number;
@@ -83,7 +90,7 @@ async function setupMarkers(url: string) {
 
   async function updateMarkers(url: string) {
     let tmpMarkers = await getMarkerLocations(url);
-    if (tmpMarkers) {
+    if (tmpMarkers != []) {
       markersData = tmpMarkers;
       deleteAllMarkers();
       drawMarkers(markersData);
@@ -94,29 +101,29 @@ async function setupMarkers(url: string) {
     markersLayer.clearLayers();
   }
 
-  async function getMarkerLocations(url: string) {
+  async function getMarkerLocations(url: string): Promise<MarkerData[]> {
     let response = await fetch(url);
     if (response.ok) {
       return await response.json();
     } else {
       console.log("HTTP-Error: " + response.status);
-      return undefined;
+      return [];
     }
   }
 
   function drawMarkers(markersData: MarkerData[]) {
     let markers: L.Layer[] = [];
     markersData.forEach((m) => {
-      let marker = L.marker([m.position.Lat, m.position.Lng]).bindPopup(
-        '<a href="/location/' +
-          m.id +
-          '" target="_blank" rel="noopener">' +
-          m.title +
-          "</a>"
-      );
+      let marker = L.marker([m.position.Lat, m.position.Lng])
+        // .bindPopup(
+        //   '<a href="/charger/' + m.id + '" target="_self">' + m.title + "</a>"
+        // )
+        .on("click", () => {
+          router.push("/charger/" + m.id);
+        });
       markers.push(marker);
     });
-    markersLayer.addLayers(markers)
+    markersLayer.addLayers(markers);
   }
 }
 
@@ -124,7 +131,7 @@ onMounted(async () => {
   setupLeafletMap();
   if (props.useLocation) setupLocation();
   if (props.useSearch) setupSearch();
-  if (props.markersURL) setupMarkers(props.markersURL);
+  if (props.markersURL) setupMarkers(props.markersURL);  
 });
 </script>
 
@@ -153,7 +160,8 @@ onMounted(async () => {
   /* filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.5) brightness(0.6); */
 
   /* google maps */
-  filter: invert(0.8) hue-rotate(175deg) saturate(0.8) contrast(1.05) brightness(0.9);
+  filter: invert(0.8) hue-rotate(175deg) saturate(0.8) contrast(1.05)
+    brightness(0.9);
 }
 
 /* location */

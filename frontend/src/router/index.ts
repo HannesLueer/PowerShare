@@ -23,6 +23,11 @@ const router = createRouter({
       component: () => import("../views/MapView.vue"),
     },
     {
+      path: "/charger/:id",
+      name: "charger",
+      component: () => import("../views/ChargerView.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "error",
       component: () => import("../views/ErrorView.vue"),

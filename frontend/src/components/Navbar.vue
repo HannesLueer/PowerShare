@@ -45,8 +45,9 @@ export default defineComponent({
     return {
       links: [
         { to: "/", text: "Home" },
-        { to: "/map", text: "Map" },
+        { to: "/charger/map", text: "Map" },
         { to: "/about", text: "About" },
+        { to: "/charger/34441", text: "Charger" },
       ],
     };
   },
