@@ -1,14 +1,22 @@
 package database
 
-import "fmt"
+import (
+	"log"
+)
 
-func createChargersTable(){
+func createUsersTable() {
+	sqlStatement := `CREATE TABLE users (id serial, name text, email text, password text, role int, PRIMARY KEY( id ))`
+	DB.Exec(sqlStatement)
+}
+
+func createChargersTable() {
 	sqlStatement := `CREATE TABLE chargers(id serial, title text, position point, cost numeric, isOccupied boolean, PRIMARY KEY( id ))`
 	DB.Exec(sqlStatement)
 }
 
-func SetupAllTables(){
+func SetupAllTables() {
+	createUsersTable()
 	createChargersTable()
 
-	fmt.Println("DB tables created")
+	log.Println("DB tables created")
 }

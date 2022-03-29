@@ -1,0 +1,68 @@
+package user
+
+import (
+	"PowerShare/database"
+	"PowerShare/models"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+)
+
+func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var user models.User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "error in reading body", http.StatusBadRequest)
+		return
+	}
+
+	_, errCode, err := signUp(user)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+
+	// sign in
+	token, errCode, err := signIn(models.Authentication{
+		Email:    user.Email,
+		Password: user.Password,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+	json.NewEncoder(w).Encode(token)
+	return
+}
+
+func signUp(user models.User) (id int64, httpErrorCode int, error error) {
+	//checks if email is already register or not
+	var dbUser models.User
+	sqlSelectStatement := `SELECT * FROM users WHERE email=$1`
+	err := database.DB.QueryRow(sqlSelectStatement, user.Email).Scan(&dbUser.ID, &dbUser.Name, &dbUser.Email, &dbUser.Password, &dbUser.Role)
+	if err != nil {
+		log.Println(err)
+	}
+	if dbUser.Email != "" {
+		return -1, http.StatusBadRequest, fmt.Errorf("email already in use")
+	}
+
+	user.Password, err = generateHashPassword(user.Password)
+	if err != nil {
+		log.Printf("error in password hash: %v", err)
+		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")
+	}
+
+	//insert user details in database
+	sqlInsertStatement := `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id`
+	err = database.DB.QueryRow(sqlInsertStatement, user.Name, user.Email, user.Password, user.Role).Scan(&id)
+	if err != nil {
+		log.Printf("Unable to execute the query. %v", err)
+		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")
+	}
+	return id, http.StatusOK, nil
+}

@@ -5,6 +5,7 @@ import (
 	"PowerShare/database"
 	"PowerShare/frontend"
 	"PowerShare/handler/chargingStation"
+	"PowerShare/handler/user"
 	"PowerShare/helper"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -68,6 +69,11 @@ func main() {
 	chargerRouter.HandleFunc("/", chargingStation.CreateHandler).Methods(http.MethodPost)
 	chargerRouter.HandleFunc("/", chargingStation.UpdateHandler).Methods(http.MethodPut)
 	chargerRouter.HandleFunc("/{id}", chargingStation.DeleteHandler).Methods(http.MethodDelete)
+	userRouter := apiRouter.PathPrefix("/user").Subrouter()
+	userRouter.HandleFunc("/signup", user.SignUpHandler).Methods(http.MethodPost)
+	userRouter.HandleFunc("/signin", user.SignInHandler).Methods(http.MethodPost)
+	userRouter.HandleFunc("/", user.IsAuthorized(user.UpdateHandler)).Methods(http.MethodPut)
+	userRouter.HandleFunc("/", user.IsAuthorized(user.DeleteHandler)).Methods(http.MethodDelete)
 
 	log.Fatalln(http.ListenAndServeTLS(":"+os.Getenv("SERVER_PORT"), os.Getenv("SERVER_CERT_FILE_PATH"), os.Getenv("SERVER_KEY_FILE_PATH"), r))
 }

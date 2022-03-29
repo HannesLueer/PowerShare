@@ -10,7 +10,7 @@ func deleteCharger(id int64) error {
 
 	_, err := database.DB.Exec(sqlStatement, id)
 	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
+		log.Printf("Unable to execute the query. %v", err)
 	}
 
 	return err

@@ -2,11 +2,10 @@ package testdata
 
 import (
 	"PowerShare/database"
-	"fmt"
 	"log"
 )
 
-func CleanDB(){
+func CleanDB() {
 	sqlStatement :=
 		`DO $$ 
 		  DECLARE 
@@ -28,5 +27,5 @@ func CleanDB(){
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
 
-	fmt.Println("DB cleaned")
+	log.Println("DB cleaned")
 }
