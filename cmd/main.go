@@ -9,7 +9,7 @@ import (
 	"PowerShare/helper"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"io/fs"
+	"github.com/rs/cors"
 	"log"
 	"mime"
 	"net/http"
@@ -20,8 +20,12 @@ import (
 )
 
 func main() {
-	// define mime type
-	err := mime.AddExtensionType(".js", "application/javascript")
+	// define mime types
+	err := mime.AddExtensionType(".js", "text/javascript")
+	if err != nil {
+		log.Println(err)
+	}
+	err = mime.AddExtensionType(".css", "text/css")
 	if err != nil {
 		log.Println(err)
 	}
@@ -57,10 +61,6 @@ func main() {
 	// define routes
 	r := mux.NewRouter()
 
-	// serve frontend
-	frontendRouter := r.PathPrefix("/").Subrouter()
-	frontendRouter.Handle("/", http.FileServer(getPWAFileSystem()))
-
 	// serve api
 	apiRouter := r.PathPrefix("/api/v1").Subrouter()
 	chargerRouter := apiRouter.PathPrefix("/charger").Subrouter()
@@ -75,15 +75,19 @@ func main() {
 	userRouter.HandleFunc("/", user.IsAuthorized(user.UpdateHandler)).Methods(http.MethodPut)
 	userRouter.HandleFunc("/", user.IsAuthorized(user.DeleteHandler)).Methods(http.MethodDelete)
 
-	log.Fatalln(http.ListenAndServeTLS(":"+os.Getenv("SERVER_PORT"), os.Getenv("SERVER_CERT_FILE_PATH"), os.Getenv("SERVER_KEY_FILE_PATH"), r))
-}
+	// serve frontend
+	frontendRouter := r.PathPrefix("/").Subrouter()
+	frontendRouter.PathPrefix("/").HandlerFunc(frontend.SpaHandler)
 
-func getPWAFileSystem() http.FileSystem {
-	fsys, err := fs.Sub(frontend.PWA, "dist")
-	if err != nil {
-		log.Fatal(err)
-	}
-	return http.FS(fsys)
+	// CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*://localhost:3000"},
+		AllowCredentials: true,
+		Debug:            false,
+	})
+	corsMux := c.Handler(r)
+
+	log.Fatalln(http.ListenAndServeTLS(":"+os.Getenv("SERVER_PORT"), os.Getenv("SERVER_CERT_FILE_PATH"), os.Getenv("SERVER_KEY_FILE_PATH"), corsMux))
 }
 
 func createDefaultDirs() {
