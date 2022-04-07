@@ -68,7 +68,7 @@ onMounted(async () => {
       isOccupied: {{ charger.isOccupied }}
       <h2>address</h2>
       Lat: {{ charger.position.Lat }} <br>
-      Lng: {{ charger.position.Lng }}
+      Lng: {{ charger.position.Lng }} <br>
       ...
 
       <h2>cost</h2>

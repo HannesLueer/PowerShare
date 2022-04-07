@@ -12,8 +12,10 @@
   --gray950: #101011;
 
   --aqua-green: #00e388;
-  --green: #4AA96C;
-  --red: #F55C47;
+  --green: #4AA96C;  
+  --red500: #fb6e58;
+  --red550: #F55C47;
+  --red600: #d83a25;
 }
 
 /* semantic color variables for this project */
@@ -27,9 +29,19 @@
   --color-button-background-hover: var(--gray500);
   --color-button-text: var(--gray050);
 
+  --color-input-background: var(--gray050);
+  --color-input-border: var(--gray200);
+  --color-input-text: var(--gray900);
+  --color-input-placeholder-text: var(--gray400);
+
   --color-navbar-background: var(--gray100);
   --color-navbar-hover-background: var(--gray200);
   --color-footer-background: var(--gray100);
+
+  --color-login-box-background: var(--gray100);
+  --color-login-image-background: var(--gray400);
+  
+  --color-errorbox-background: var(--red500);
 }
 
 :root[theme="dark"]{
@@ -42,17 +54,26 @@
   --color-button-background-hover: var(--gray300);
   --color-button-text: var(--gray900);
 
+  --color-input-background: var(--gray600);
+  --color-input-border: var(--gray500);
+  --color-input-text: var(--gray050);
+  --color-input-placeholder-text: var(--gray300);
+
   --color-navbar-background: var(--gray800);
   --color-navbar-hover-background: var(--gray950);
   --color-footer-background: var(--gray800);
+
+  --color-login-box-background: var(--gray800);
+  --color-login-image-background: var(--gray700);
+
+  --color-errorbox-background: var(--red600);
 }
 
 * {  
   transition: background-color 0.4s ease-out;
 }
 
-button:hover,
-button:active,
+button,
 a {  
   transition: none;
 }
@@ -88,16 +109,13 @@ a {
 }
 
 button {
-  border-radius: 0.4rem;
-  border-style: solid;
-  border-width: 3px;
+  border: 2px solid var(--color-button-border);
+  border-radius: 0.1rem;
   background-color: var(--color-button-background);
   color: var(--color-button-text);
-  border-color: var(--color-button-border);
   font-weight: bold;
   font-size: 1rem;
   padding: 0.2rem;
-  margin: 0.5rem;
 }
 
 button:hover{
@@ -105,4 +123,17 @@ button:hover{
 }
 button:active{
   background-color: var(--color-button-background);
+}
+
+input {
+  padding: 0.3em;
+  font-size: 1.2em;
+  background-color: var(--color-input-background);
+  color: var(--color-input-text);
+  border: 2px solid var(--color-input-border);
+  border-radius: 0.1rem;
+}
+
+input::placeholder {
+  color: var(--color-input-placeholder-text);
 }

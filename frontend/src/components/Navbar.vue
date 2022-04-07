@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { userService } from "@/services";
 
 detectColorScheme();
 
 function detectColorScheme() {
   let theme = "dark";
-  if (localStorage.getItem("theme")) { // already stored in localstorage
+  if (localStorage.getItem("theme")) {
+    // already stored in localstorage
     theme = localStorage.getItem("theme") || "dark";
   } else {
-    if (window.matchMedia) {  // matchMedia method supported
+    if (window.matchMedia) {
+      // matchMedia method supported
       theme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
-    } else {  // matchMedia method not supported
+    } else {
+      // matchMedia method not supported
       theme = "dark";
     }
   }
@@ -43,12 +47,20 @@ export default defineComponent({
   components: {},
   data() {
     return {
-      links: [
+      linksLeft: [
         { to: "/", text: "Home" },
         { to: "/charger/map", text: "Map" },
         { to: "/about", text: "About" },
         { to: "/charger/34441", text: "Charger" },
       ],
+
+      linksRight: {
+        user: [{ to: "/account", text: "Account" }],
+        guest: [
+          { to: "/login", text: "Login" },
+          { to: "/register", text: "Register" },
+        ],
+      },
     };
   },
 });
@@ -56,7 +68,7 @@ export default defineComponent({
 
 <template>
   <nav>
-    <ul>
+    <ul class="left">
       <li>
         <img
           alt="Vue logo"
@@ -67,12 +79,40 @@ export default defineComponent({
         />
       </li>
 
-      <li v-for="(link, index) in links" :key="index">
+      <li v-for="(link, index) in linksLeft" :key="index">
         <RouterLink :to="link.to">{{ link.text }}</RouterLink>
       </li>
+    </ul>
 
-      <li class="right">
-        <button class="themeSwitch" @click="themeButtonClicked" aria-label="Theme Switch">
+    <ul class="right">
+      <li v-for="(link, index) in linksRight.guest" :key="index">
+        <RouterLink :to="link.to" v-if="!userService.isLoggedin.value">{{
+          link.text
+        }}</RouterLink>
+      </li>
+
+      <li v-for="(link, index) in linksRight.user" :key="index">
+        <RouterLink :to="link.to" v-if="userService.isLoggedin.value">{{
+          link.text
+        }}</RouterLink>
+      </li>
+
+      <li>
+        <button
+          id="logout-button"
+          @click="userService.logout()"
+          v-if="userService.isLoggedin.value"
+        >
+          Logout
+        </button>
+      </li>
+
+      <li>
+        <button
+          class="themeSwitch"
+          @click="themeButtonClicked"
+          aria-label="Theme Switch"
+        >
           <svg id="sun-icon" viewBox="0 0 100 100">
             <use href="@/assets/img/sun-icon.svg#sun"></use>
           </svg>
@@ -86,30 +126,31 @@ export default defineComponent({
 </template>
 
 <style scoped>
-ul {
+nav {
   width: 100%;
   background-color: var(--color-navbar-background);
   color: var(--color-text);
+  display: flex;
+}
 
+ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
   overflow: hidden;
 }
 
+ul.left {
+  margin-right: auto;
+}
+
+ul.left {
+  align-items: flex-end;
+}
+
 ul * {
-  margin: auto;
   display: inline-block;
-
   vertical-align: middle;
-}
-
-li {
-  float: left;
-}
-
-li.right {
-  float: right;
 }
 
 li a {
@@ -130,6 +171,12 @@ li > img {
 
 li a:hover {
   background-color: var(--color-navbar-hover-background);
+}
+
+/* logout button */
+button#logout-button {
+  border-radius: 0.3em;
+  margin: auto 0.8rem;
 }
 
 /* theme switch */

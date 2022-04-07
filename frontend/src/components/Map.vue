@@ -24,7 +24,7 @@ function setupLeafletMap() {
   mapDiv = L.map("mapContainer").setView(props.center, 6);
   L.tileLayer(
     // "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    "http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
+    "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
     {
       maxZoom: 22,
       subdomains: ["mt0", "mt1", "mt2", "mt3"],
@@ -131,7 +131,7 @@ onMounted(async () => {
   setupLeafletMap();
   if (props.useLocation) setupLocation();
   if (props.useSearch) setupSearch();
-  if (props.markersURL) setupMarkers(props.markersURL);  
+  if (props.markersURL) setupMarkers(props.markersURL);
 });
 </script>
 

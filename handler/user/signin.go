@@ -15,7 +15,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	var authDetails models.Authentication
 	err := json.NewDecoder(r.Body).Decode(&authDetails)
 	if err != nil {
-		json.NewEncoder(w).Encode("Error in reading body")
+		http.Error(w, "Error in reading body", http.StatusBadRequest)
 		return
 	}
 

@@ -11,7 +11,7 @@ import Navbar from "./components/Navbar.vue";
     <router-view></router-view>
 
     <Footer></Footer>
-  </div> 
+  </div>
 </template>
 
 <style>
