@@ -1,7 +1,8 @@
 import { config } from "@/config";
+import { authHeader } from "@/helpers";
 import { ref } from "vue";
 
-const isLoggedin = ref<boolean>(false);
+const isLoggedin = ref<boolean>(localStorageGetUser() != null);
 
 function localStorageSaveUser(user: string) {
   localStorage.setItem("user", user);
@@ -11,6 +12,10 @@ function localStorageSaveUser(user: string) {
 function localStorageDeleteUser() {
   localStorage.removeItem("user");
   isLoggedin.value = false;
+}
+
+function localStorageGetUser() {
+  return localStorage.getItem("user");
 }
 
 function login(email: string, password: string) {
@@ -30,12 +35,17 @@ function login(email: string, password: string) {
       }
 
       return user;
+    })
+    .catch((error) => {
+      console.error(error);
+      return "a communication error occurred";
     });
 }
 
 function logout() {
   // remove user from local storage to log user out
   localStorageDeleteUser();
+  location.reload();
 }
 
 function register(name: string, email: string, password: string) {
@@ -55,13 +65,20 @@ function register(name: string, email: string, password: string) {
       }
 
       return user;
+    })
+    .catch((error) => {
+      console.error(error);
+      return "a communication error occurred";
     });
 }
 
 function update(name: string, email: string, password: string) {
   const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: "PUT",
+    headers: Object.assign(
+      { "Content-Type": "application/json" },
+      authHeader()
+    ),
     body: JSON.stringify({ name, email, password }),
   };
 
@@ -75,27 +92,64 @@ function update(name: string, email: string, password: string) {
       }
 
       return user;
+    })
+    .catch((error) => {
+      console.error(error);
+      return "a communication error occurred";
     });
 }
 
 function remove() {
   const requestOptions = {
-    method: "DEL",
-    headers: { "Content-Type": "application/json" },
+    method: "DELETE",
+    headers: authHeader(),
   };
 
-  return fetch(`${config.API_URL}/user/`, requestOptions).then(handleResponse);
+  return fetch(`${config.API_URL}/user/`, requestOptions)
+    .then((response) => {
+      // delete successful if there's no text in response
+      if (response.ok) {
+        logout();
+      }
+      return response.text();
+    })
+    .catch((error) => {
+      console.error(error);
+      return "a communication error occurred";
+    });
+}
+
+function get() {
+  const requestOptions = {
+    method: "GET",
+    headers: Object.assign(
+      { "Content-Type": "application/json" },
+      authHeader()
+    ),
+  };
+
+  return fetch(`${config.API_URL}/user/`, requestOptions)
+    .then(handleResponse)
+    .then((user) => {
+      return user;
+    })
+    .catch((error) => {
+      console.error(error);
+      return "a communication error occurred";
+    });
 }
 
 function handleResponse(response: Response) {
   return response.text().then((text: string) => {
-    if (response.ok) {
+    if (
+      response.ok &&
+      response.headers.get("content-type") == "application/json"
+    ) {
       return JSON.parse(text);
     } else {
       if (response.status === 401) {
         // auto logout if 401 response returned from api
         logout();
-        location.reload();
       }
       return text || response.statusText;
     }
@@ -108,5 +162,6 @@ export const userService = {
   register,
   update,
   remove,
+  get,
   isLoggedin,
 };

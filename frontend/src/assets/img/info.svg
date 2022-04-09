@@ -1,1 +1,11 @@
-<svg width="3275" height="4487" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="hidden"><defs><clipPath id="clip0"><rect x="961" y="680" width="3275" height="4487"/></clipPath></defs><g clip-path="url(#clip0)" transform="translate(-961 -680)"><path d="M1048.5 2599C1048.5 1742.68 1742.68 1048.5 2599 1048.5 3455.32 1048.5 4149.5 1742.68 4149.5 2599 4149.5 3455.32 3455.32 4149.5 2599 4149.5 1742.68 4149.5 1048.5 3455.32 1048.5 2599Z" stroke="#3B3838" stroke-width="165" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" fill="#BFBFBF" fill-rule="evenodd"/><text fill="#181717" font-family="Book Antiqua,Book Antiqua_MSFontService,sans-serif" font-weight="700" font-size="2136" transform="matrix(1 0 0 1 2242.97 3313)">i</text></g></svg>
+<svg width="3275" height="3275" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="hidden">
+    <defs>
+        <clipPath id="clip0">
+            <rect x="961" y="680" width="3275" height="4487" />
+        </clipPath>
+    </defs>
+    <g clip-path="url(#clip0)" transform="translate(-961 -961)">
+        <path d="M1048.5 2599C1048.5 1742.68 1742.68 1048.5 2599 1048.5 3455.32 1048.5 4149.5 1742.68 4149.5 2599 4149.5 3455.32 3455.32 4149.5 2599 4149.5 1742.68 4149.5 1048.5 3455.32 1048.5 2599Z" stroke="#3B3838" stroke-width="165" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" fill="#BFBFBF" fill-rule="evenodd" />
+        <text fill="#181717" font-family="Book Antiqua,Book Antiqua_MSFontService,sans-serif" font-weight="700" font-size="2136" transform="matrix(1 0 0 1 2242.97 3313)">i</text>
+    </g>
+</svg>

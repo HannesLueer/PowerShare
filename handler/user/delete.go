@@ -2,7 +2,6 @@ package user
 
 import (
 	"PowerShare/database"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Header["Token"] == nil {
-		json.NewEncoder(w).Encode("No Token Found")
+		http.Error(w, "No token found", http.StatusBadRequest)
 		return
 	}
 

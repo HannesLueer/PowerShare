@@ -54,14 +54,16 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func update(oldEmail string, user models.User) (id int64, errCode int, error error) {
 	//checks if email is already in use
-	var dbUser models.User
-	sqlSelectStatement := `SELECT * FROM users WHERE email=$1`
-	err := database.DB.QueryRow(sqlSelectStatement, user.Email).Scan(&dbUser.ID, &dbUser.Name, &dbUser.Email, &dbUser.Password, &dbUser.Role)
-	if err != nil {
-		log.Println(err)
-	}
-	if dbUser.Email != "" {
-		return -1, http.StatusBadRequest, fmt.Errorf("email already in use")
+	if oldEmail != user.Email {
+		var dbUser models.User
+		sqlSelectStatement := `SELECT * FROM users WHERE email=$1`
+		err := database.DB.QueryRow(sqlSelectStatement, user.Email).Scan(&dbUser.ID, &dbUser.Name, &dbUser.Email, &dbUser.PasswordHash, &dbUser.Role)
+		if err != nil {
+			log.Println(err)
+		}
+		if dbUser.Email != "" {
+			return -1, http.StatusBadRequest, fmt.Errorf("email already in use")
+		}
 	}
 
 	// hash password

@@ -74,6 +74,7 @@ func main() {
 	userRouter.HandleFunc("/signin", user.SignInHandler).Methods(http.MethodPost)
 	userRouter.HandleFunc("/", user.IsAuthorized(user.UpdateHandler)).Methods(http.MethodPut)
 	userRouter.HandleFunc("/", user.IsAuthorized(user.DeleteHandler)).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/", user.IsAuthorized(user.GetHandler)).Methods(http.MethodGet)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()
@@ -84,6 +85,8 @@ func main() {
 		AllowedOrigins:   []string{"*://localhost:3000"},
 		AllowCredentials: true,
 		Debug:            false,
+		AllowedHeaders:   []string{"*"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodPut, http.MethodDelete, http.MethodPost},
 	})
 	corsMux := c.Handler(r)
 

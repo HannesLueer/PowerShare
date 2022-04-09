@@ -43,7 +43,7 @@ func signUp(user models.User) (id int64, httpErrorCode int, error error) {
 	//checks if email is already register or not
 	var dbUser models.User
 	sqlSelectStatement := `SELECT * FROM users WHERE email=$1`
-	err := database.DB.QueryRow(sqlSelectStatement, user.Email).Scan(&dbUser.ID, &dbUser.Name, &dbUser.Email, &dbUser.Password, &dbUser.Role)
+	err := database.DB.QueryRow(sqlSelectStatement, user.Email).Scan(&dbUser.ID, &dbUser.Name, &dbUser.Email, &dbUser.PasswordHash, &dbUser.Role)
 	if err != nil {
 		log.Println(err)
 	}
@@ -51,7 +51,7 @@ func signUp(user models.User) (id int64, httpErrorCode int, error error) {
 		return -1, http.StatusBadRequest, fmt.Errorf("email already in use")
 	}
 
-	user.Password, err = generateHashPassword(user.Password)
+	user.PasswordHash, err = generateHashPassword(user.Password)
 	if err != nil {
 		log.Printf("error in password hash: %v", err)
 		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")
@@ -59,7 +59,7 @@ func signUp(user models.User) (id int64, httpErrorCode int, error error) {
 
 	//insert user details in database
 	sqlInsertStatement := `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id`
-	err = database.DB.QueryRow(sqlInsertStatement, user.Name, user.Email, user.Password, user.Role).Scan(&id)
+	err = database.DB.QueryRow(sqlInsertStatement, user.Name, user.Email, user.PasswordHash, user.Role).Scan(&id)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")

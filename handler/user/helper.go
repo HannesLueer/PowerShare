@@ -1,12 +1,12 @@
 package user
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -28,7 +28,11 @@ func generateJWT(email string, role int64) (string, error) {
 	claims["authorized"] = true
 	claims["email"] = email
 	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	minutes, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
+	if err != nil {
+		minutes = 30
+	}
+	claims["exp"] = time.Now().Add(time.Minute * time.Duration(minutes)).Unix()
 
 	tokenString, err := token.SignedString(mySigningKey)
 
@@ -43,7 +47,7 @@ func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Header["Token"] == nil {
-			json.NewEncoder(w).Encode("No Token Found")
+			http.Error(w, "no token found", http.StatusBadRequest)
 			return
 		}
 
@@ -57,7 +61,7 @@ func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
 		})
 
 		if err != nil {
-			json.NewEncoder(w).Encode("Your Token has been expired")
+			http.Error(w, "Your Token has been expired", http.StatusUnauthorized)
 			return
 		}
 
@@ -66,7 +70,7 @@ func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
 			handler.ServeHTTP(w, r)
 			return
 		}
-		json.NewEncoder(w).Encode("Not Authorized")
+		http.Error(w, "Not authorized", http.StatusUnauthorized)
 	}
 }
 

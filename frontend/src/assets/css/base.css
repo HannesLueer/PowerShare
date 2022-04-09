@@ -12,7 +12,11 @@
   --gray950: #101011;
 
   --aqua-green: #00e388;
-  --green: #4AA96C;  
+  
+  --green300: #61da8b;
+  --green500: #4AA96C;
+  --green600: #3e955d;
+
   --red500: #fb6e58;
   --red550: #F55C47;
   --red600: #d83a25;
@@ -22,7 +26,7 @@
 :root {
   --color-background: var(--gray050);
   --color-text: var(--gray900);
-  --color-link: var(--green);
+  --color-link: var(--green500);
 
   --color-button-border: var(--gray300);
   --color-button-background: var(--gray600);
@@ -30,7 +34,7 @@
   --color-button-text: var(--gray050);
 
   --color-input-background: var(--gray050);
-  --color-input-border: var(--gray200);
+  --color-input-border: var(--gray500);
   --color-input-text: var(--gray900);
   --color-input-placeholder-text: var(--gray400);
 
@@ -40,8 +44,15 @@
 
   --color-login-box-background: var(--gray100);
   --color-login-image-background: var(--gray400);
+  --color-login-input-border: var(--gray200);
   
   --color-errorbox-background: var(--red500);
+  --color-successbox-background: var(--green300);
+
+  --color-delete-button-background: var(--red500);
+  --color-delete-button-hover-background: var(--red550);
+  --color-delete-button-border: var(--gray700);
+  --color-delete-button-text: var(--color-text);
 }
 
 :root[theme="dark"]{
@@ -55,7 +66,7 @@
   --color-button-text: var(--gray900);
 
   --color-input-background: var(--gray600);
-  --color-input-border: var(--gray500);
+  --color-input-border: var(--gray400);
   --color-input-text: var(--gray050);
   --color-input-placeholder-text: var(--gray300);
 
@@ -65,8 +76,14 @@
 
   --color-login-box-background: var(--gray800);
   --color-login-image-background: var(--gray700);
+  --color-login-input-border: var(--gray500);
 
   --color-errorbox-background: var(--red600);
+  --color-successbox-background: var(--green600);
+
+  --color-delete-button-background: var(--red600);
+  --color-delete-button-border: var(--gray300);
+
 }
 
 * {  
@@ -127,7 +144,7 @@ button:active{
 
 input {
   padding: 0.3em;
-  font-size: 1.2em;
+  font-size: 1em;
   background-color: var(--color-input-background);
   color: var(--color-input-text);
   border: 2px solid var(--color-input-border);

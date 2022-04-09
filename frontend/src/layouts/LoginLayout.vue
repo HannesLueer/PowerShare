@@ -92,6 +92,7 @@ div.image-wrapper img {
   width: calc(100% - 2 * (0.3em + 2px));
   font-size: 1.4em;
   margin-bottom: 1em;
+  border: 2px solid var(--color-login-input-border);
 }
 
 .form :deep() button {
