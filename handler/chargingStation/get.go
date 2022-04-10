@@ -8,7 +8,7 @@ import (
 )
 
 func getAllCharger() ([]models.Charger, error) {
-	rows, err := database.DB.Query("SELECT * FROM chargers")
+	rows, err := database.DB.Query("SELECT id, title, position, cost, isoccupied FROM chargers")
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func getAllCharger() ([]models.Charger, error) {
 }
 
 func getCharger(id int64) (models.Charger, error) {
-	sqlStatement := `SELECT * FROM chargers WHERE id=$1`
+	sqlStatement := `SELECT id, title, position, cost, isoccupied FROM chargers WHERE id=$1`
 
 	var charger models.Charger
 	var coordinateStr string
@@ -57,7 +57,7 @@ func getCharger(id int64) (models.Charger, error) {
 	return charger, err
 }
 
-func getCoordinateFromString(coordinate string) (models.Coordinate, error){
+func getCoordinateFromString(coordinate string) (models.Coordinate, error) {
 	t := regexp.MustCompile(`\(|\)|,| `)
 	array := t.Split(coordinate, -1)
 	lat, err := strconv.ParseFloat(array[2], 64)

@@ -18,7 +18,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tokenStr = r.Header["Token"][0]
-	var email, err = getEmailFromToken(tokenStr)
+	var email, err = GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -44,4 +44,14 @@ func get(email string) (user models.User, errCode int, error error) {
 	}
 
 	return user, http.StatusOK, nil
+}
+
+func GetId(email string) (id int64, err error) {
+	sqlSelectStatement := `SELECT id FROM users WHERE email=$1`
+	err = database.DB.QueryRow(sqlSelectStatement, email).Scan(&id)
+	if err != nil {
+		log.Println(err)
+		return -1, fmt.Errorf("internal error")
+	}
+	return id, nil
 }

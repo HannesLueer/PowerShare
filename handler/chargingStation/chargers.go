@@ -1,10 +1,12 @@
 package chargingStation
 
 import (
+	"PowerShare/handler/user"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -51,14 +53,27 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
+	tokenStr, errCode, err := user.GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+
+	email, err := user.GetEmailFromToken(tokenStr)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unable to read token", http.StatusBadRequest)
+		return
+	}
+
 	var charger models.Charger
-	err := json.NewDecoder(r.Body).Decode(&charger)
+	err = json.NewDecoder(r.Body).Decode(&charger)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var id = CreateCharger(charger)
+	var id = CreateCharger(charger, email)
 
 	jsonResp, err := json.Marshal(id)
 	if err != nil {

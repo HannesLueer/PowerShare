@@ -74,7 +74,7 @@ func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func getEmailFromToken(tokenStr string) (string, error) {
+func GetEmailFromToken(tokenStr string) (string, error) {
 	var mySigningKey = []byte(os.Getenv("SIGNING_KEY"))
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -88,4 +88,12 @@ func getEmailFromToken(tokenStr string) (string, error) {
 	}
 
 	return fmt.Sprintf("%v", token.Claims.(jwt.MapClaims)["email"]), nil
+}
+
+func GetToken(r *http.Request) (token string, errCode int, err error) {
+	if r.Header["Token"] == nil {
+		return "", http.StatusBadRequest, fmt.Errorf("no token found")
+	}
+	var tokenStr = r.Header["Token"][0]
+	return tokenStr, http.StatusOK, nil
 }

@@ -10,7 +10,7 @@ func createUsersTable() {
 }
 
 func createChargersTable() {
-	sqlStatement := `CREATE TABLE chargers(id serial, title text, position point, cost numeric, isOccupied boolean, PRIMARY KEY( id ))`
+	sqlStatement := `CREATE TABLE chargers(id serial, title text, position point, cost numeric, isOccupied boolean, userId integer, PRIMARY KEY( id ))`
 	DB.Exec(sqlStatement)
 }
 

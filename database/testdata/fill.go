@@ -2,36 +2,62 @@ package testdata
 
 import (
 	"PowerShare/handler/chargingStation"
+	"PowerShare/handler/user"
 	"PowerShare/models"
+	"fmt"
 	"log"
 	"math/rand"
-	"strconv"
 )
 
 func FillDB() {
+	fillUsers()
 	fillChargers()
 
 	log.Println("DB filled")
 }
 
-func fillChargers() {
-	for lng := -180.0; lng < 180.0; lng += 3 {
-		for lat := -90.0; lat < 90.0; lat += 3 {
-			for j := 1.0; j < 4.0; j += 1 {
-				lng_ := lng + j*rand.Float64()
-				lat_ := lat + j*rand.Float64()
-				for i := 1.0; i < 4.0; i += 1 {
-					lng_ += i * 0.003 * rand.Float64()
-					lat_ += i * -0.003 * rand.Float64()
+const numberUsers = 50
+const numberChargers = 5_000
 
-					chargingStation.CreateCharger(models.Charger{
-						Title:      "lng: " + strconv.FormatFloat(lng_, 'f', 5, 64) + " lat: " + strconv.FormatFloat(lat_, 'f', 5, 64),
-						Position:   models.Coordinate{Lat: lng_, Lng: lat_},
-						Cost:       3,
-						IsOccupied: false,
-					})
-				}
-			}
+func fillUsers() {
+	for userCount := 0; userCount < numberUsers; userCount++ {
+		_, _, err := user.SignUp(models.User{
+			ID:           0,
+			Name:         fmt.Sprintf("User%d", userCount),
+			Email:        fmt.Sprintf("user%d@test.com", userCount),
+			Password:     "123",
+			PasswordHash: "",
+			Role:         0,
+		})
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
+}
+
+func fillChargers() {
+	for userCount := 0; userCount < numberUsers; userCount++ {
+		for chargerCount := 0; chargerCount < numberChargers/numberUsers; chargerCount++ {
+			pos, title := getRandomPosition()
+			chargingStation.CreateCharger(models.Charger{
+				Title:      title,
+				Position:   pos,
+				Cost:       3,
+				IsOccupied: false,
+			},
+				fmt.Sprintf("user%d@test.com", userCount),
+			)
+		}
+	}
+}
+
+func getRandomPosition() (models.Coordinate, string) {
+	lat := rand.Float64()*360 - 180
+	lng := rand.Float64()*180 - 90
+
+	return models.Coordinate{
+			Lat: lat,
+			Lng: lng,
+		},
+		fmt.Sprintf("Lng: %f Lat: %f", lng, lat)
 }

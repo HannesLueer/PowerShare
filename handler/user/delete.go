@@ -14,7 +14,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tokenStr = r.Header["Token"][0]
-	var email, err = getEmailFromToken(tokenStr)
+	var email, err = GetEmailFromToken(tokenStr)
 
 	if err != nil {
 		log.Println(err)

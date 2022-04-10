@@ -12,13 +12,13 @@ import (
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	if r.Header["Token"] == nil {
-		http.Error(w, "no token found", http.StatusBadRequest)
+	tokenStr, errCode, err := GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	var tokenStr = r.Header["Token"][0]
-	var oldEmail, err = getEmailFromToken(tokenStr)
+	oldEmail, err := GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -32,7 +32,7 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errCode, err := update(oldEmail, user)
+	_, errCode, err = update(oldEmail, user)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return

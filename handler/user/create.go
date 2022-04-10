@@ -3,7 +3,9 @@ package user
 import (
 	"PowerShare/database"
 	"PowerShare/models"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,7 +21,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errCode, err := signUp(user)
+	_, errCode, err := SignUp(user)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
@@ -39,12 +41,12 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func signUp(user models.User) (id int64, httpErrorCode int, error error) {
+func SignUp(user models.User) (id int64, httpErrorCode int, error error) {
 	//checks if email is already register or not
 	var dbUser models.User
 	sqlSelectStatement := `SELECT * FROM users WHERE email=$1`
 	err := database.DB.QueryRow(sqlSelectStatement, user.Email).Scan(&dbUser.ID, &dbUser.Name, &dbUser.Email, &dbUser.PasswordHash, &dbUser.Role)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		log.Println(err)
 	}
 	if dbUser.Email != "" {
