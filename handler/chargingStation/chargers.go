@@ -85,14 +85,27 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
+	tokenStr, errCode, err := user.GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+
+	email, err := user.GetEmailFromToken(tokenStr)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unable to read token", http.StatusBadRequest)
+		return
+	}
+
 	var charger models.Charger
-	err := json.NewDecoder(r.Body).Decode(&charger)
+	err = json.NewDecoder(r.Body).Decode(&charger)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	id, err := updateCharger(charger)
+	id, err := updateCharger(charger, email)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -109,15 +122,28 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+	tokenStr, errCode, err := user.GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+
+	email, err := user.GetEmailFromToken(tokenStr)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unable to read token", http.StatusBadRequest)
+		return
+	}
+
 	vars := mux.Vars(r)
 	idStr := vars["id"]
-
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	deleteCharger(id)
+
+	deleteCharger(id, email)
 
 	return
 }

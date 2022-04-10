@@ -57,6 +57,10 @@ func getCharger(id int64) (models.Charger, error) {
 	return charger, err
 }
 
+func getChargersOfUser(email string) {
+
+}
+
 func getCoordinateFromString(coordinate string) (models.Coordinate, error) {
 	t := regexp.MustCompile(`\(|\)|,| `)
 	array := t.Split(coordinate, -1)
