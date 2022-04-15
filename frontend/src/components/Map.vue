@@ -32,8 +32,7 @@ let mapDiv: L.Map;
 function setupLeafletMap() {
   mapDiv = L.map("mapContainer")
     .setView(props.center, 6)
-    .on("click", function (ev) {
-      console.log("clicked");
+    .on("click", function (ev: L.LeafletMouseEvent) {
       emit("clickedPosition", { Lat: ev.latlng.lat, Lng: ev.latlng.lng });
     });
   L.tileLayer(
