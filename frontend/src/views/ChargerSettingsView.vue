@@ -84,6 +84,11 @@ function displaySuccess(text: string) {
   sucMsg.value = text;
 }
 
+function hideMessageBoxes() {
+  errMsg.value = "";
+  sucMsg.value = "";
+}
+
 onMounted(async () => {
   const route = useRoute();
   // used for classic URL navigation (e.g saved link)
@@ -91,6 +96,7 @@ onMounted(async () => {
     await getChargerData(parseInt(route.params.id));
   // used for vue router navigation
   watch(route, async () => {
+    hideMessageBoxes();
     if (typeof route.params.id == "string")
       await getChargerData(parseInt(route.params.id));
   });
