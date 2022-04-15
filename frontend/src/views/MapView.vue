@@ -16,6 +16,7 @@ var center: [number, number] = [51.5, 10];
       :use-location="true"
       markersURL="https://localhost:5000/api/v1/charger/all"
       :markersUpdateIntervalSeconds="120"
+      marker-link-to="/charger/"
     ></Map>
   </main>
 </template>

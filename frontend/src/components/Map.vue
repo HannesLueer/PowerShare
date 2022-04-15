@@ -5,7 +5,14 @@ import "leaflet.locatecontrol";
 import "leaflet.offline";
 import "leaflet.markercluster";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+import "leaflet-easybutton";
 import router from "@/router";
+import { authHeader } from "@/helpers";
+import type { Coordinate } from "@/services";
+
+const emit = defineEmits<{
+  (e: "clickedPosition", pos: Coordinate): void;
+}>();
 
 const props = defineProps<{
   center: L.LatLngExpression;
@@ -13,6 +20,8 @@ const props = defineProps<{
   useSearch?: boolean;
   markersURL?: string;
   markersUpdateIntervalSeconds?: number;
+  markerLinkTo?: string;
+  useAddButton?: boolean;
 }>();
 
 const propsRef = toRefs(props);
@@ -21,7 +30,12 @@ let mapDiv: L.Map;
 
 // methods
 function setupLeafletMap() {
-  mapDiv = L.map("mapContainer").setView(props.center, 6);
+  mapDiv = L.map("mapContainer")
+    .setView(props.center, 6)
+    .on("click", function (ev) {
+      console.log("clicked");
+      emit("clickedPosition", { Lat: ev.latlng.lat, Lng: ev.latlng.lng });
+    });
   L.tileLayer(
     // "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
@@ -102,7 +116,10 @@ async function setupMarkers(url: string) {
   }
 
   async function getMarkerLocations(url: string): Promise<MarkerData[]> {
-    let response = await fetch(url);
+    let response = await fetch(url, {
+      method: "GET",
+      headers: authHeader(),
+    });
     if (response.ok) {
       return await response.json();
     } else {
@@ -114,17 +131,25 @@ async function setupMarkers(url: string) {
   function drawMarkers(markersData: MarkerData[]) {
     let markers: L.Layer[] = [];
     markersData.forEach((m) => {
-      let marker = L.marker([m.position.Lat, m.position.Lng])
-        // .bindPopup(
-        //   '<a href="/charger/' + m.id + '" target="_self">' + m.title + "</a>"
-        // )
-        .on("click", () => {
-          router.push("/charger/" + m.id);
-        });
+      let marker = L.marker([m.position.Lat, m.position.Lng]).on(
+        "click",
+        () => {
+          if (props.markerLinkTo) router.push(props.markerLinkTo + m.id);
+        }
+      );
       markers.push(marker);
     });
     markersLayer.addLayers(markers);
   }
+}
+
+async function setupAddButton() {
+  L.easyButton(
+    '<img src="/src/assets/img/new-location.svg" width="22">',
+    function (btn, map) {
+      router.push("/mycharger/new");
+    }
+  ).addTo(mapDiv);
 }
 
 onMounted(async () => {
@@ -132,6 +157,7 @@ onMounted(async () => {
   if (props.useLocation) setupLocation();
   if (props.useSearch) setupSearch();
   if (props.markersURL) setupMarkers(props.markersURL);
+  if (props.useAddButton) setupAddButton();
 });
 </script>
 
@@ -199,6 +225,21 @@ onMounted(async () => {
 
 :root[theme="dark"] .leaflet-control-geosearch input::placeholder {
   color: var(--color-button-text);
+}
+
+/* leaflet-easybutton */
+.easy-button-button {
+  padding: 4px;
+  border: none;
+  background-color: white;
+}
+
+.easy-button-button:hover {
+  background-color: #f4f4f4;
+}
+
+:root[theme="dark"] .easy-button-button {
+  background-color: var(--color-button-background);
 }
 </style>
 

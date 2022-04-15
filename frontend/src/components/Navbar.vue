@@ -51,11 +51,14 @@ export default defineComponent({
         { to: "/", text: "Home" },
         { to: "/charger/map", text: "Map" },
         { to: "/about", text: "About" },
-        { to: "/charger/34441", text: "Charger" },
+        { to: "/charger/4085", text: "Charger" },
       ],
 
       linksRight: {
-        user: [{ to: "/account", text: "Account" }],
+        user: [
+          { to: "/mycharger/all", text: "Manage chargers" },
+          { to: "/account", text: "Account" },
+        ],
         guest: [
           { to: "/login", text: "Login" },
           { to: "/register", text: "Register" },

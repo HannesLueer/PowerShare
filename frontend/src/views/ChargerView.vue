@@ -2,16 +2,9 @@
 import Map from "../components/Map.vue";
 import { useRoute } from "vue-router";
 import { onMounted, ref, watch } from "vue";
+import { chargerService, type ChargerData } from "@/services";
 
 let mapCenter = ref<[number, number]>([51.5, 10]);
-
-class ChargerData {
-  id!: number;
-  title!: string;
-  position!: { Lat: number; Lng: number };
-  cost!: number;
-  isOccupied!: boolean;
-}
 
 var charger = ref<ChargerData>();
 
@@ -20,19 +13,14 @@ async function getChargerData(id: number): Promise<void> {
     charger.value = undefined;
     return;
   }
-  let url = "https://localhost:5000/api/v1/charger/" + id;
-  let response = await fetch(url);
-  if (response.ok) {
-    charger.value = await response.json();
-    if (charger.value != undefined) {
-      mapCenter.value = [
-        charger.value?.position.Lat,
-        charger.value?.position.Lng,
-      ];
-    }
+
+  let newCharger = await chargerService.get(id);
+
+  if (newCharger != undefined) {
+    mapCenter.value = [newCharger.position.Lat, newCharger.position.Lng];
+    charger.value = newCharger;
   } else {
     // TODO: display error to user
-    console.log("HTTP-Error: " + response.status);
   }
 }
 
@@ -57,6 +45,7 @@ onMounted(async () => {
       :use-location="true"
       markersURL="https://localhost:5000/api/v1/charger/all"
       :markersUpdateIntervalSeconds="120"
+      marker-link-to="/charger/"
       class="split50"
     >
     </Map>
@@ -64,11 +53,11 @@ onMounted(async () => {
     <div class="split50 textbox" v-if="charger != undefined">
       <h1>{{ charger?.title }}</h1>
       Details text <br />
-      id: {{ charger.id }} <br>
+      id: {{ charger.id }} <br />
       isOccupied: {{ charger.isOccupied }}
       <h2>address</h2>
-      Lat: {{ charger.position.Lat }} <br>
-      Lng: {{ charger.position.Lng }} <br>
+      Lat: {{ charger.position.Lat }} <br />
+      Lng: {{ charger.position.Lng }} <br />
       ...
 
       <h2>cost</h2>
@@ -101,7 +90,7 @@ main.split50 > div.split50 {
   width: calc(50vw - 4em);
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (orientation: portrait) and (max-width: 800px) {
   main {
     flex-direction: column;
   }
