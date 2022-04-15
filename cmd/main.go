@@ -65,6 +65,7 @@ func main() {
 	apiRouter := r.PathPrefix("/api/v1").Subrouter()
 	chargerRouter := apiRouter.PathPrefix("/charger").Subrouter()
 	chargerRouter.HandleFunc("/all", chargingStation.OverviewHandler).Methods(http.MethodGet)
+	chargerRouter.HandleFunc("/my", user.IsAuthorized(chargingStation.OverviewOwnHandler)).Methods(http.MethodGet)
 	chargerRouter.HandleFunc("/{id}", chargingStation.DetailsHandler).Methods(http.MethodGet)
 	chargerRouter.HandleFunc("/", user.IsAuthorized(chargingStation.CreateHandler)).Methods(http.MethodPost)
 	chargerRouter.HandleFunc("/", user.IsAuthorized(chargingStation.UpdateHandler)).Methods(http.MethodPut)

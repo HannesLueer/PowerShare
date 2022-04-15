@@ -2,7 +2,9 @@ package chargingStation
 
 import (
 	"PowerShare/database"
+	"PowerShare/handler/user"
 	"PowerShare/models"
+	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -57,14 +59,47 @@ func getCharger(id int64) (models.Charger, error) {
 	return charger, err
 }
 
-func getChargersOfUser(email string) {
+func getChargersOfUser(email string) ([]models.Charger, error) {
+	userId, err := user.GetId(email)
+	if err != nil {
+		return nil, fmt.Errorf("no user found. %v", err)
+	}
 
+	rows, err := database.DB.Query("SELECT id, title, position, cost, isoccupied FROM chargers WHERE userid=$1", userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var chargers []models.Charger
+
+	for rows.Next() {
+		var charger models.Charger
+		var coordinateStr string
+
+		err := rows.Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost, &charger.IsOccupied)
+		if err != nil {
+			return nil, err
+		}
+
+		charger.Position, err = getCoordinateFromString(coordinateStr)
+		if err != nil {
+			return nil, err
+		}
+
+		chargers = append(chargers, charger)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return chargers, nil
 }
 
 func getCoordinateFromString(coordinate string) (models.Coordinate, error) {
 	t := regexp.MustCompile(`\(|\)|,| `)
 	array := t.Split(coordinate, -1)
-	lat, err := strconv.ParseFloat(array[2], 64)
-	lng, err := strconv.ParseFloat(array[1], 64)
+	lat, err := strconv.ParseFloat(array[1], 64)
+	lng, err := strconv.ParseFloat(array[2], 64)
 	return models.Coordinate{Lat: lat, Lng: lng}, err
 }

@@ -22,6 +22,38 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonResp)
+	return
+}
+
+func OverviewOwnHandler(w http.ResponseWriter, r *http.Request) {
+	tokenStr, errCode, err := user.GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+
+	email, err := user.GetEmailFromToken(tokenStr)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unable to read token", http.StatusBadRequest)
+		return
+	}
+
+	chargers, err := getChargersOfUser(email)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	jsonResp, err := json.Marshal(chargers)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonResp)
 	return
 }
@@ -48,6 +80,7 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonResp)
 	return
 }
