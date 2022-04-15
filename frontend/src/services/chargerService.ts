@@ -1,5 +1,6 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
+import { handleResponse } from "@/services";
 
 function get(id: number): Promise<ChargerData> {
   const requestOptions = {
@@ -84,19 +85,6 @@ function remove(id: number) {
       console.error(error);
       return "a communication error occurred";
     });
-}
-
-function handleResponse(response: Response) {
-  return response.text().then((text: string) => {
-    if (
-      response.ok &&
-      response.headers.get("content-type") == "application/json"
-    ) {
-      return JSON.parse(text);
-    } else {
-      return text || response.statusText;
-    }
-  });
 }
 
 export class ChargerData {

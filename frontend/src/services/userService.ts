@@ -1,6 +1,7 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
 import { ref } from "vue";
+import { handleResponse } from "@/services";
 
 const isLoggedin = ref<boolean>(localStorageGetUser() != null);
 
@@ -137,23 +138,6 @@ function get() {
       console.error(error);
       return "a communication error occurred";
     });
-}
-
-function handleResponse(response: Response) {
-  return response.text().then((text: string) => {
-    if (
-      response.ok &&
-      response.headers.get("content-type") == "application/json"
-    ) {
-      return JSON.parse(text);
-    } else {
-      if (response.status === 401) {
-        // auto logout if 401 response returned from api
-        logout();
-      }
-      return text || response.statusText;
-    }
-  });
 }
 
 export const userService = {
