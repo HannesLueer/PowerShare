@@ -4,7 +4,6 @@ import DefaultLayout from "../layouts/BasicLayout.vue";
 import ErrorBox from "@/components/ErrorBox.vue";
 import SuccessBox from "@/components/SuccessBox.vue";
 import { userService } from "@/services";
-import router from "@/router";
 
 let name = ref<string>("");
 let email = ref<string>("");
@@ -32,7 +31,6 @@ async function deleteUser() {
   const data = await userService.remove();
   if (data == "") {
     errMsg.value = "";
-    // router.back();
   } else {
     errMsg.value = data;
     sucMsg.value = "";
@@ -52,7 +50,7 @@ async function getCurrentValues() {
 }
 
 onMounted(async () => {
-  await getCurrentValues()
+  await getCurrentValues();
 });
 </script>
 
@@ -117,18 +115,9 @@ button {
   margin-top: 2em;
 }
 
-button.delete {
-  background-color: var(--color-delete-button-background);
-  border-color: var(--color-delete-button-border);
-  color: var(--color-delete-button-text);
-  margin-bottom: 2em;
+.ErrorBox,
+.SuccessBox {
+  margin-top: 2em;
 }
-
-button.delete:hover {
-  background-color: var(--color-delete-button-hover-background);
-}
-
-button.delete:active {
-  background-color: var(--color-delete-button-background);
-}
+</style>
 </style>

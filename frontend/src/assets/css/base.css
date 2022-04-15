@@ -142,7 +142,21 @@ button:active{
   background-color: var(--color-button-background);
 }
 
-input {
+button.delete {
+  background-color: var(--color-delete-button-background);
+  border-color: var(--color-delete-button-border);
+  color: var(--color-delete-button-text);
+}
+
+button.delete:hover {
+  background-color: var(--color-delete-button-hover-background);
+}
+
+button.delete:active {
+  background-color: var(--color-delete-button-background);
+}
+
+input, select {
   padding: 0.3em;
   font-size: 1em;
   background-color: var(--color-input-background);

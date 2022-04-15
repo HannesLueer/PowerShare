@@ -6,16 +6,16 @@
 
 <style scoped>
 main {
-  margin-left: 40px;
-  margin-right: 40px;
-  margin-bottom: 40px;
+  margin: 40px;
+}
+
+main :deep() *:first-child {
+  margin-top: 0;
 }
 
 @media screen and (max-width: 600px) {
   main {
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    margin: 10px;
   }
 }
 </style>

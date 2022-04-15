@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="ErrorBox">
+  <div class="SuccessBox">
     <img src="@/assets/img/info.svg" alt="Info-Logo" />
     {{ msg }}
   </div>
