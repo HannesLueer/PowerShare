@@ -113,6 +113,7 @@ onMounted(async () => {
       :markersUpdateIntervalSeconds="120"
       marker-link-to="/mycharger/"
       :useAddButton="true"
+      :use-manual-update-button="true"
       v-on:clicked-position="setLocation"
       class="split50"
     >
@@ -120,11 +121,11 @@ onMounted(async () => {
 
     <div class="split50 textbox">
       <form @submit.prevent="submit" accept-charset="UTF-8">
-        <label for="name">Name</label>
+        <label for="chargerName">Name</label>
         <input
           v-model="charger.title"
           type="text"
-          id="name"
+          id="chargerName"
           required
           placeholder="name"
         />

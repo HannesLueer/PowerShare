@@ -46,6 +46,7 @@ onMounted(async () => {
       markersApiPath="/charger/all"
       :markersUpdateIntervalSeconds="120"
       marker-link-to="/charger/"
+      :use-manual-update-button="true"
       class="split50"
     >
     </Map>

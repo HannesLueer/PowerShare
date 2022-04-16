@@ -22,11 +22,13 @@ const props = defineProps<{
   markersUpdateIntervalSeconds?: number;
   markerLinkTo?: string;
   useAddButton?: boolean;
+  useManualUpdateButton?: boolean;
 }>();
 
 const propsRef = toRefs(props);
 
 let mapDiv: L.Map;
+let markersLayer = L.markerClusterGroup({ chunkedLoading: true });
 
 // methods
 function setupLeafletMap() {
@@ -85,40 +87,35 @@ function setupSearch() {
 async function setupMarkers(apiPath: string) {
   const timeout = (props.markersUpdateIntervalSeconds ?? 5 * 60 * 60) * 1000;
 
-  let markersData: ChargerData[];
-  let markersLayer = L.markerClusterGroup({ chunkedLoading: true });
-
   mapDiv.addLayer(markersLayer);
 
   updateMarkers(apiPath);
   setInterval(updateMarkers, timeout, apiPath);
+}
 
-  async function updateMarkers(apiPath: string) {
-    let tmpMarkers = await chargerService.getList(apiPath);
-    if (tmpMarkers != []) {
-      markersData = tmpMarkers;
-      deleteAllMarkers();
-      drawMarkers(markersData);
-    }
+async function updateMarkers(apiPath: string) {
+  let markersData: ChargerData[];
+  let tmpMarkers = await chargerService.getList(apiPath);
+  if (tmpMarkers != []) {
+    markersData = tmpMarkers;
+    deleteAllMarkers();
+    drawMarkers(markersData);
   }
+}
 
-  function deleteAllMarkers() {
-    markersLayer.clearLayers();
-  }
+function deleteAllMarkers() {
+  markersLayer.clearLayers();
+}
 
-  function drawMarkers(chargerArray: ChargerData[]) {
-    let markers: L.Layer[] = [];
-    chargerArray.forEach((m) => {
-      let marker = L.marker([m.position.Lat, m.position.Lng]).on(
-        "click",
-        () => {
-          if (props.markerLinkTo) router.push(props.markerLinkTo + m.id);
-        }
-      );
-      markers.push(marker);
+function drawMarkers(chargerArray: ChargerData[]) {
+  let markers: L.Layer[] = [];
+  chargerArray.forEach((m) => {
+    let marker = L.marker([m.position.Lat, m.position.Lng]).on("click", () => {
+      if (props.markerLinkTo) router.push(props.markerLinkTo + m.id);
     });
-    markersLayer.addLayers(markers);
-  }
+    markers.push(marker);
+  });
+  markersLayer.addLayers(markers);
 }
 
 async function setupAddButton() {
@@ -130,12 +127,23 @@ async function setupAddButton() {
   ).addTo(mapDiv);
 }
 
+async function setupManualUpdateButton(apiPath: string) {
+  L.easyButton(
+    '<img src="/src/assets/img/reload.svg" width="22">',
+    function (btn, map) {
+      updateMarkers(apiPath);
+    }
+  ).addTo(mapDiv);
+}
+
 onMounted(async () => {
   setupLeafletMap();
   if (props.useLocation) setupLocation();
   if (props.useSearch) setupSearch();
   if (props.markersApiPath) setupMarkers(props.markersApiPath);
   if (props.useAddButton) setupAddButton();
+  if (props.useManualUpdateButton && props.markersApiPath)
+    setupManualUpdateButton(props.markersApiPath);
 });
 </script>
 
