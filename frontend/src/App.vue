@@ -16,6 +16,7 @@ import Navbar from "./components/Navbar.vue";
 
 <style>
 @import "@/assets/css/base.css";
+@import "@/assets/css/scrollbar.css";
 </style>
 
 <style scoped>
