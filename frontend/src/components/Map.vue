@@ -8,7 +8,7 @@ import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "leaflet-easybutton";
 import router from "@/router";
 import { authHeader } from "@/helpers";
-import type { Coordinate } from "@/services";
+import { chargerService, type ChargerData, type Coordinate } from "@/services";
 
 const emit = defineEmits<{
   (e: "clickedPosition", pos: Coordinate): void;
@@ -18,7 +18,7 @@ const props = defineProps<{
   center: L.LatLngExpression;
   useLocation?: boolean;
   useSearch?: boolean;
-  markersURL?: string;
+  markersApiPath?: string;
   markersUpdateIntervalSeconds?: number;
   markerLinkTo?: string;
   useAddButton?: boolean;
@@ -82,27 +82,19 @@ function setupSearch() {
   mapDiv.addControl(searchControl);
 }
 
-async function setupMarkers(url: string) {
+async function setupMarkers(apiPath: string) {
   const timeout = (props.markersUpdateIntervalSeconds ?? 5 * 60 * 60) * 1000;
 
-  class MarkerData {
-    id!: number;
-    title!: string;
-    position!: { Lat: number; Lng: number };
-    cost!: number;
-    isOccupied!: boolean;
-  }
-
-  let markersData: MarkerData[];
+  let markersData: ChargerData[];
   let markersLayer = L.markerClusterGroup({ chunkedLoading: true });
 
   mapDiv.addLayer(markersLayer);
 
-  updateMarkers(url);
-  setInterval(updateMarkers, timeout, url);
+  updateMarkers(apiPath);
+  setInterval(updateMarkers, timeout, apiPath);
 
-  async function updateMarkers(url: string) {
-    let tmpMarkers = await getMarkerLocations(url);
+  async function updateMarkers(apiPath: string) {
+    let tmpMarkers = await chargerService.getList(apiPath);
     if (tmpMarkers != []) {
       markersData = tmpMarkers;
       deleteAllMarkers();
@@ -114,22 +106,9 @@ async function setupMarkers(url: string) {
     markersLayer.clearLayers();
   }
 
-  async function getMarkerLocations(url: string): Promise<MarkerData[]> {
-    let response = await fetch(url, {
-      method: "GET",
-      headers: authHeader(),
-    });
-    if (response.ok) {
-      return await response.json();
-    } else {
-      console.log("HTTP-Error: " + response.status);
-      return [];
-    }
-  }
-
-  function drawMarkers(markersData: MarkerData[]) {
+  function drawMarkers(chargerArray: ChargerData[]) {
     let markers: L.Layer[] = [];
-    markersData.forEach((m) => {
+    chargerArray.forEach((m) => {
       let marker = L.marker([m.position.Lat, m.position.Lng]).on(
         "click",
         () => {
@@ -155,7 +134,7 @@ onMounted(async () => {
   setupLeafletMap();
   if (props.useLocation) setupLocation();
   if (props.useSearch) setupSearch();
-  if (props.markersURL) setupMarkers(props.markersURL);
+  if (props.markersApiPath) setupMarkers(props.markersApiPath);
   if (props.useAddButton) setupAddButton();
 });
 </script>

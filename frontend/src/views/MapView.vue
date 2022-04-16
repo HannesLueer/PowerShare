@@ -14,7 +14,7 @@ var center: [number, number] = [51.5, 10];
       :center="center"
       :use-search="true"
       :use-location="true"
-      markersURL="https://localhost:5000/api/v1/charger/all"
+      markersApiPath="/charger/all"
       :markersUpdateIntervalSeconds="120"
       marker-link-to="/charger/"
     ></Map>

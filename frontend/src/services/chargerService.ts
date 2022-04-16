@@ -22,6 +22,18 @@ function get(id: number): Promise<ChargerData> {
     });
 }
 
+async function getList(path: string): Promise<ChargerData[]> {
+  return fetch(`${config.API_URL}${path}`, {
+    method: "GET",
+    headers: authHeader(),
+  })
+    .then(handleResponse)
+    .catch((error) => {
+      console.error(error);
+      return [];
+    });
+}
+
 function create(charger: ChargerData) {
   const requestOptions = {
     method: "POST",
@@ -102,6 +114,7 @@ export class Coordinate {
 
 export const chargerService = {
   get,
+  getList,
   create,
   update,
   remove,
