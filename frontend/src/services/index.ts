@@ -2,6 +2,7 @@ import { userService } from "@/services";
 
 export * from "./userService";
 export * from "./chargerService";
+export * from "./currencyService";
 
 export function handleResponse(response: Response) {
   return response.text().then((text: string) => {

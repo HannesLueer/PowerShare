@@ -1,6 +1,6 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
-import { handleResponse } from "@/services";
+import { type Currency, handleResponse } from "@/services";
 
 function get(id: number): Promise<ChargerData> {
   const requestOptions = {
@@ -103,13 +103,18 @@ export class ChargerData {
   id!: number;
   title!: string;
   position!: Coordinate;
-  cost!: number;
+  cost!: Cost;
   isOccupied!: boolean;
 }
 
 export class Coordinate {
   Lat!: number;
   Lng!: number;
+}
+
+export class Cost {
+  amount!: number;
+  currency!: Currency;
 }
 
 export const chargerService = {

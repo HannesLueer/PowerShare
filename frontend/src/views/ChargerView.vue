@@ -62,7 +62,7 @@ onMounted(async () => {
       ...
 
       <h2>cost</h2>
-      {{ charger?.cost }} €
+      {{ charger?.cost.amount }} {{ charger?.cost.currency.symbol }}
     </div>
   </main>
 </template>

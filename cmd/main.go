@@ -5,6 +5,7 @@ import (
 	"PowerShare/database"
 	"PowerShare/frontend"
 	"PowerShare/handler/chargingStation"
+	"PowerShare/handler/currency"
 	"PowerShare/handler/user"
 	"PowerShare/helper"
 	"github.com/gorilla/mux"
@@ -76,6 +77,8 @@ func main() {
 	userRouter.HandleFunc("/", user.IsAuthorized(user.UpdateHandler)).Methods(http.MethodPut)
 	userRouter.HandleFunc("/", user.IsAuthorized(user.DeleteHandler)).Methods(http.MethodDelete)
 	userRouter.HandleFunc("/", user.IsAuthorized(user.GetHandler)).Methods(http.MethodGet)
+	currencyRouter := apiRouter.PathPrefix("/currency").Subrouter()
+	currencyRouter.HandleFunc("/all", currency.OverviewHandler).Methods(http.MethodGet)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()

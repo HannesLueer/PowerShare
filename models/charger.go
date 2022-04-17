@@ -4,7 +4,7 @@ type Charger struct {
 	ID         int64      `json:"id"`
 	Title      string     `json:"title"`
 	Position   Coordinate `json:"position"`
-	Cost       float32    `json:"cost"`
+	Cost       Cost       `json:"cost"`
 	IsOccupied bool       `json:"isOccupied"`
 }
 

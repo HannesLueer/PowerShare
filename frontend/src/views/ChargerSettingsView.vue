@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import Map from "@/components/Map.vue";
-import { chargerService, Coordinate, type ChargerData } from "@/services";
+import {
+  chargerService,
+  currencyService,
+  type Coordinate,
+  type Cost,
+  type Currency,
+  type ChargerData,
+} from "@/services";
 import { useRoute } from "vue-router";
 import ErrorBox from "@/components/ErrorBox.vue";
 import SuccessBox from "@/components/SuccessBox.vue";
@@ -11,13 +18,17 @@ const defaultCharger = <ChargerData>{
   id: -1,
   title: "",
   position: { Lat: 0, Lng: 0 },
-  cost: 0,
+  cost: <Cost>{
+    amount: 0,
+    currency: <Currency>{ abbreviation: "EUR" },
+  },
   isOccupied: false,
 };
 
 let mapCenter = ref<[number, number]>([51.5, 10]);
 
 let charger = ref<ChargerData>(defaultCharger);
+let currencies = ref<Currency[]>([]);
 
 let errMsg = ref<string>("");
 let sucMsg = ref<string>("");
@@ -26,6 +37,16 @@ let markerTrigger = ref<number>(0);
 
 function setLocation(coordinate: Coordinate) {
   charger.value.position = coordinate;
+}
+
+async function getCurrencies(): Promise<void> {
+  let newCurrenciesList = await currencyService.getList();
+
+  if (newCurrenciesList && newCurrenciesList != []) {
+    currencies.value = newCurrenciesList;
+  } else {
+    displayError("An error occurred while loading the currencies");
+  }
 }
 
 async function getChargerData(id: number): Promise<void> {
@@ -104,6 +125,8 @@ onMounted(async () => {
   // used for classic URL navigation (e.g saved link)
   if (typeof route.params.id == "string")
     await getChargerData(parseInt(route.params.id));
+  getCurrencies();
+
   // used for vue router navigation
   watch(route, async () => {
     hideMessageBoxes();
@@ -166,16 +189,17 @@ onMounted(async () => {
 
         <label for="cost">Cost</label>
         <input
-          v-model="charger.cost"
+          v-model="charger.cost.amount"
           type="number"
           step="0.01"
           id="cost"
           required
           placeholder="cost"
         />
-        <select>
-          <option value="EUR">€ (EUR)</option>
-          <option value="USD">$ (USD)</option>
+        <select v-model="charger.cost.currency.abbreviation">
+          <option v-for="currency in currencies" :value="currency.abbreviation">
+            {{ currency.symbol }} ({{ currency.abbreviation }})
+          </option>
         </select>
         <br />
         <button type="submit">submit</button>

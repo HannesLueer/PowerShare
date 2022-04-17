@@ -2,6 +2,7 @@ package testdata
 
 import (
 	"PowerShare/handler/chargingStation"
+	"PowerShare/handler/currency"
 	"PowerShare/handler/user"
 	"PowerShare/models"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 )
 
 func FillDB() {
+	fillCurrencies()
 	fillUsers()
 	fillChargers()
 
@@ -18,6 +20,31 @@ func FillDB() {
 
 const numberUsers = 50
 const numberChargers = 5_000
+
+func fillCurrencies() {
+	var currencies = []models.Currency{
+		{
+			Abbreviation: "USD",
+			Symbol:       "$",
+		},
+		{
+			Abbreviation: "EUR",
+			Symbol:       "€",
+		},
+		{
+			Abbreviation: "GBP",
+			Symbol:       "£",
+		},
+		{
+			Abbreviation: "CNY",
+			Symbol:       "¥",
+		},
+	}
+
+	for _, curr := range currencies {
+		currency.CreateCurrency(curr)
+	}
+}
 
 func fillUsers() {
 	for userCount := 0; userCount < numberUsers; userCount++ {
@@ -40,9 +67,14 @@ func fillChargers() {
 		for chargerCount := 0; chargerCount < numberChargers/numberUsers; chargerCount++ {
 			pos, title := getRandomPosition()
 			chargingStation.CreateCharger(models.Charger{
-				Title:      title,
-				Position:   pos,
-				Cost:       3,
+				Title:    title,
+				Position: pos,
+				Cost: models.Cost{
+					Amount: 3,
+					Currency: models.Currency{
+						Abbreviation: "EUR",
+					},
+				},
 				IsOccupied: false,
 			},
 				fmt.Sprintf("user%d@test.com", userCount),
