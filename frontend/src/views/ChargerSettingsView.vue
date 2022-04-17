@@ -22,6 +22,8 @@ let charger = ref<ChargerData>(defaultCharger);
 let errMsg = ref<string>("");
 let sucMsg = ref<string>("");
 
+let markerTrigger = ref<number>(0);
+
 function setLocation(coordinate: Coordinate) {
   charger.value.position = coordinate;
 }
@@ -51,6 +53,7 @@ async function createCharger() {
   const data = await chargerService.create(charger.value);
   if (!isNaN(Number(data))) {
     displaySuccess("Charger was added successfully");
+    updateMarkers();
   } else {
     displayError(data);
   }
@@ -60,6 +63,7 @@ async function updateCharger() {
   const data = await chargerService.update(charger.value);
   if (data == charger.value.id.toString()) {
     displaySuccess("Data was changed successfully");
+    updateMarkers();
   } else {
     displayError(data);
   }
@@ -69,6 +73,7 @@ async function deleteCharger() {
   const data = await chargerService.remove(charger.value.id);
   if (data == "") {
     displaySuccess("Charger was deleted successfully");
+    updateMarkers();
   } else {
     displayError(data);
   }
@@ -87,6 +92,11 @@ function displaySuccess(text: string) {
 function hideMessageBoxes() {
   errMsg.value = "";
   sucMsg.value = "";
+}
+
+function updateMarkers() {
+  markerTrigger.value++;
+  console.log(markerTrigger.value);
 }
 
 onMounted(async () => {
@@ -116,6 +126,7 @@ onMounted(async () => {
       :use-manual-update-button="true"
       v-on:clicked-position="setLocation"
       class="split50"
+      :trigger-marker-update="markerTrigger"
     >
     </Map>
 

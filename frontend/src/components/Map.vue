@@ -23,6 +23,7 @@ const props = defineProps<{
   markerLinkTo?: string;
   useAddButton?: boolean;
   useManualUpdateButton?: boolean;
+  triggerMarkerUpdate?: number;
 }>();
 
 const propsRef = toRefs(props);
@@ -144,6 +145,12 @@ onMounted(async () => {
   if (props.useAddButton) setupAddButton();
   if (props.useManualUpdateButton && props.markersApiPath)
     setupManualUpdateButton(props.markersApiPath);
+
+  if (propsRef.triggerMarkerUpdate) {
+    watch(propsRef.triggerMarkerUpdate, async () => {
+      if (props.markersApiPath) updateMarkers(props.markersApiPath);
+    });
+  }
 });
 </script>
 
