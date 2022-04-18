@@ -7,7 +7,6 @@ import "leaflet.markercluster";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import "leaflet-easybutton";
 import router from "@/router";
-import { authHeader } from "@/helpers";
 import { chargerService, type ChargerData, type Coordinate } from "@/services";
 
 const emit = defineEmits<{
@@ -24,6 +23,7 @@ const props = defineProps<{
   useAddButton?: boolean;
   useManualUpdateButton?: boolean;
   triggerMarkerUpdate?: number;
+  triggerMapInvalidateSize?: number;
 }>();
 
 const propsRef = toRefs(props);
@@ -149,6 +149,14 @@ onMounted(async () => {
   if (propsRef.triggerMarkerUpdate) {
     watch(propsRef.triggerMarkerUpdate, async () => {
       if (props.markersApiPath) updateMarkers(props.markersApiPath);
+    });
+  }
+
+  if (propsRef.triggerMapInvalidateSize) {
+    watch(propsRef.triggerMapInvalidateSize, async () => {
+      setTimeout(() => {
+        mapDiv.invalidateSize();
+      }, 300);
     });
   }
 });

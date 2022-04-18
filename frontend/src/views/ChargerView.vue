@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import Map from "../components/Map.vue";
-import { useRoute } from "vue-router";
+import { useRoute, type RouteLocationNormalizedLoaded } from "vue-router";
 import { onMounted, ref, watch } from "vue";
 import { chargerService, type ChargerData } from "@/services";
 
 let mapCenter = ref<[number, number]>([51.5, 10]);
+let invalidateSizeTrigger = ref<number>(0);
 
 var charger = ref<ChargerData>();
 
@@ -24,15 +25,22 @@ async function getChargerData(id: number): Promise<void> {
   }
 }
 
-onMounted(async () => {
-  const route = useRoute();
-  // used for classic URL navigation (someone sends link to charger)
+async function onLoad(route: RouteLocationNormalizedLoaded) {
   if (typeof route.params.id == "string")
     await getChargerData(parseInt(route.params.id));
+
+  invalidateSizeTrigger.value++;
+}
+
+onMounted(async () => {
+  const route = useRoute();
+
+  // used for classic URL navigation (someone sends link to charger)
+  onLoad(route);
+
   // used for vue router navigation
   watch(route, async () => {
-    if (typeof route.params.id == "string")
-      await getChargerData(parseInt(route.params.id));
+    onLoad(route);
   });
 });
 </script>
@@ -47,6 +55,7 @@ onMounted(async () => {
       :markersUpdateIntervalSeconds="120"
       marker-link-to="/charger/"
       :use-manual-update-button="true"
+      :trigger-map-invalidate-size="invalidateSizeTrigger"
       class="split50"
     >
     </Map>
