@@ -75,7 +75,8 @@ func fillChargers() {
 						Abbreviation: "EUR",
 					},
 				},
-				IsOccupied: false,
+				IsOccupied:  false,
+				Description: "Demo charger description.",
 			},
 				fmt.Sprintf("user%d@test.com", userCount),
 			)

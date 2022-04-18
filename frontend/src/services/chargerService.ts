@@ -105,6 +105,7 @@ export class ChargerData {
   position!: Coordinate;
   cost!: Cost;
   isOccupied!: boolean;
+  description!: string;
 }
 
 export class Coordinate {

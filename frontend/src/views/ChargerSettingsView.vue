@@ -117,7 +117,6 @@ function hideMessageBoxes() {
 
 function updateMarkers() {
   markerTrigger.value++;
-  console.log(markerTrigger.value);
 }
 
 onMounted(async () => {
@@ -164,6 +163,13 @@ onMounted(async () => {
           placeholder="name"
         />
         <br />
+
+        <label for="description">Description</label>
+        <textarea
+          v-model="charger.description"
+          id="description"
+          placeholder="description"
+        />
 
         <label for="latitude">Latitude</label>
         <input

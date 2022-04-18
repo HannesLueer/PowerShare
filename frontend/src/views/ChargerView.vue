@@ -53,13 +53,14 @@ onMounted(async () => {
 
     <div class="split50 textbox" v-if="charger != undefined">
       <h1>{{ charger?.title }}</h1>
-      Details text <br />
-      id: {{ charger.id }} <br />
-      isOccupied: {{ charger.isOccupied }}
+      available: {{ !charger.isOccupied }}
+
+      <h2>description</h2>
+      {{ charger.description }}
+
       <h2>address</h2>
       Lat: {{ charger.position.Lat }} <br />
       Lng: {{ charger.position.Lng }} <br />
-      ...
 
       <h2>cost</h2>
       {{ charger?.cost.amount }} {{ charger?.cost.currency.symbol }}

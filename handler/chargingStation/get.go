@@ -10,7 +10,7 @@ import (
 )
 
 func getAllCharger() ([]models.Charger, error) {
-	rows, err := database.DB.Query("SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id")
+	rows, err := database.DB.Query("SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied, chargers.description FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id")
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func getAllCharger() ([]models.Charger, error) {
 		var charger models.Charger
 		var coordinateStr string
 
-		err := rows.Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied)
+		err := rows.Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied, &charger.Description)
 		if err != nil {
 			return nil, err
 		}
@@ -42,11 +42,11 @@ func getAllCharger() ([]models.Charger, error) {
 }
 
 func getCharger(id int64) (models.Charger, error) {
-	sqlStatement := `SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.id=$1`
+	sqlStatement := `SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied, chargers.description FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.id=$1`
 
 	var charger models.Charger
 	var coordinateStr string
-	err := database.DB.QueryRow(sqlStatement, id).Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied)
+	err := database.DB.QueryRow(sqlStatement, id).Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied, &charger.Description)
 	if err != nil {
 		return charger, err
 	}
@@ -65,7 +65,7 @@ func getChargersOfUser(email string) ([]models.Charger, error) {
 		return nil, fmt.Errorf("no user found. %v", err)
 	}
 
-	rows, err := database.DB.Query("SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.userid=$1", userId)
+	rows, err := database.DB.Query("SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied, chargers.description FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.userid=$1", userId)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func getChargersOfUser(email string) ([]models.Charger, error) {
 		var charger models.Charger
 		var coordinateStr string
 
-		err := rows.Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied)
+		err := rows.Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied, &charger.Description)
 		if err != nil {
 			return nil, err
 		}

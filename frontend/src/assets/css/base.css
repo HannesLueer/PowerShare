@@ -1,24 +1,24 @@
 :root {
   --gray050: #fafafa;
   --gray100: #e5e5ea;
-  --gray200: #C7C7CC;
-  --gray300: #AEAEB2;
+  --gray200: #c7c7cc;
+  --gray300: #aeaeb2;
   --gray400: #8e8e93;
   --gray500: #636366;
-  --gray600: #48484A;
-  --gray700: #3A3a3c;
+  --gray600: #48484a;
+  --gray700: #3a3a3c;
   --gray800: #2c2c2e;
   --gray900: #1c1c1e;
   --gray950: #101011;
 
   --aqua-green: #00e388;
-  
+
   --green300: #61da8b;
-  --green500: #4AA96C;
+  --green500: #4aa96c;
   --green600: #3e955d;
 
   --red500: #fb6e58;
-  --red550: #F55C47;
+  --red550: #f55c47;
   --red600: #d83a25;
 }
 
@@ -45,7 +45,7 @@
   --color-login-box-background: var(--gray100);
   --color-login-image-background: var(--gray400);
   --color-login-input-border: var(--gray200);
-  
+
   --color-errorbox-background: var(--red500);
   --color-successbox-background: var(--green300);
 
@@ -55,7 +55,7 @@
   --color-delete-button-text: var(--color-text);
 }
 
-:root[theme="dark"]{
+:root[theme="dark"] {
   --color-background: var(--gray900);
   --color-text: var(--gray050);
   --color-link: var(--aqua-green);
@@ -83,15 +83,14 @@
 
   --color-delete-button-background: var(--red600);
   --color-delete-button-border: var(--gray300);
-
 }
 
-* {  
+* {
   transition: background-color 0.4s ease-out;
 }
 
 button,
-a {  
+a {
   transition: none;
 }
 
@@ -107,11 +106,11 @@ body {
   color: var(--color-text);
   background: var(--color-background);
   line-height: 1.6;
-  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
   word-wrap: break-word;
 }
 
-div#app{
+div#app {
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -135,10 +134,10 @@ button {
   padding: 0.2rem;
 }
 
-button:hover{
+button:hover {
   background-color: var(--color-button-background-hover);
 }
-button:active{
+button:active {
   background-color: var(--color-button-background);
 }
 
@@ -156,13 +155,17 @@ button.delete:active {
   background-color: var(--color-delete-button-background);
 }
 
-input, select {
+input,
+select,
+textarea {
   padding: 0.3em;
   font-size: 1em;
+  font-family: inherit;
   background-color: var(--color-input-background);
   color: var(--color-input-text);
   border: 2px solid var(--color-input-border);
   border-radius: 0.1rem;
+  max-width: 100%;
 }
 
 input::placeholder {
