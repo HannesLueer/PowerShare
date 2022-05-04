@@ -4,6 +4,7 @@ import (
 	"PowerShare/config"
 	"PowerShare/database"
 	"PowerShare/frontend"
+	"PowerShare/handler/charging"
 	"PowerShare/handler/chargingStation"
 	"PowerShare/handler/currency"
 	"PowerShare/handler/user"
@@ -79,6 +80,9 @@ func main() {
 	userRouter.HandleFunc("/", user.IsAuthorized(user.GetHandler)).Methods(http.MethodGet)
 	currencyRouter := apiRouter.PathPrefix("/currency").Subrouter()
 	currencyRouter.HandleFunc("/all", currency.OverviewHandler).Methods(http.MethodGet)
+	chargingRouter := apiRouter.PathPrefix("/charging").Subrouter()
+	chargingRouter.HandleFunc("/start/{chargerId}/{paypalOrderID}", user.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/stop/{id}", user.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()

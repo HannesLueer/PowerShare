@@ -45,6 +45,11 @@ const router = createRouter({
       component: () => import("../views/ChargerSettingsView.vue"),
     },
     {
+      path: "/charging/:id",
+      name: "charging",
+      component: () => import("../views/ChargingView.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "error",
       component: () => import("../views/ErrorView.vue"),
@@ -54,7 +59,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   // redirect to login page if not logged in and trying to access a restricted page
-  const restrictedPages = [/\/account/, /\/mycharger.*/];
+  const restrictedPages = [/\/account/, /\/mycharger.*/, /\/charging.*/];
   const matchingPages = restrictedPages.filter((pathRegex) =>
     pathRegex.test(to.path)
   );
