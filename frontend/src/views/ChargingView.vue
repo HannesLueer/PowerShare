@@ -17,8 +17,8 @@ function onApprove(data: OnApproveData, actions: OnApproveActions) {
   // Authorize the transaction
   return actions.order.authorize().then(function (authorization) {
     // Get the authorization id
-    var authorizationID =
-      authorization.purchase_units[0].payments.authorizations[0].id;
+    var authorizationID: string = authorization.purchase_units[0].payments
+      .authorizations[0].id as string;
 
     // Call server to capture the transaction
     if (typeof route.params.id == "string")

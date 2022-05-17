@@ -2,41 +2,99 @@ package charging
 
 import (
 	"PowerShare/database"
+	"PowerShare/handler/charging/helper"
+	"PowerShare/handler/user"
 	"PowerShare/models"
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func StopHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	// read chargerId from url
+	vars := mux.Vars(r)
+	chargerIdStr := vars["chargerId"]
+	chargerId, err := strconv.ParseInt(chargerIdStr, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	//stopCharging()
+	// get user email
+	tokenStr, errCode, err := user.GetToken(r)
+	if err != nil {
+		http.Error(w, err.Error(), errCode)
+		return
+	}
+	email, err := user.GetEmailFromToken(tokenStr)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "unable to read token", http.StatusBadRequest)
+		return
+	}
 
-	//json.NewEncoder(w).Encode("")
+	// stop charging
+	httpErrorCode, err := stopCharging(chargerId, email)
+	if err != nil {
+		http.Error(w, err.Error(), httpErrorCode)
+		return
+	}
 	return
 }
 
 func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error error) {
-	//TODO
+	// turn power off
+	err := helper.SwitchPower(chargerID, false)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
 
-	//ladevorgang in db updaten
+	// read electric meter
+	chargedEnergyKWH, err := helper.GetElectricityAmount(chargerID)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
 
-	// strom ausschalten
-	// zähler ablesen
-	// kosten errechnen
-	// zahlung updaten
+	// calculate cost
+	cost, err := getCost(chargerID, chargedEnergyKWH)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
 
-	// TODO change isAvailable to false
+	// update payment
+	paypalOrderID, err := getPaypalOrderID(chargerID, userEmail)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	err = helper.UpdateOrderPaypal(paypalOrderID, cost)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	err = helper.CaptureFundsPaypal(paypalOrderID)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	// update database
+	httpErrorCode, err = writeAmountDB(userEmail, chargerID, chargedEnergyKWH)
+	if err != nil {
+		return httpErrorCode, err
+	}
+
+	httpErrorCode, err = setChargerAvailable(chargerID)
+	if err != nil {
+		return httpErrorCode, err
+	}
 
 	return http.StatusOK, nil
 }
 
-func writeAmountDB(userEmail string, chargerID int64, amount float32) (httpErrorCode int, error error) {
-	sqlStatement := `UPDATE charging_processes SET amount=$3 WHERE (chargerid=$1 AND userid=(SELECT id FROM users WHERE email=$2) AND amount=null)`
+func writeAmountDB(userEmail string, chargerID int64, amount float64) (httpErrorCode int, error error) {
+	sqlStatement := `UPDATE charging_processes SET amount=$3 WHERE (chargerid=$1 AND userid=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
 	var id int64
 	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount).Scan(&id)
 	if err != nil {
@@ -46,47 +104,33 @@ func writeAmountDB(userEmail string, chargerID int64, amount float32) (httpError
 	return http.StatusOK, nil
 }
 
-func captureFundsViaPaypal(paypalOrderID string, price float32, currency string) (err error) {
-	// define request
-	headerValues := map[string]string{
-		"Authorization": " Basic <client_id:secret>",
-		"Content-Type":  "application/json",
-	}
-	paypalUrl := fmt.Sprintf("https://api-m.sandbox.paypal.com/v2/checkout/orders/%s", paypalOrderID)
-	httpBodyJson, err := json.Marshal(models.PaypalPatchOrderBody{
-		Op:    "replace",
-		Path:  "/purchase_units/@reference_id=='default'/amount",
-		Value: nil, //TODO set this object
-	})
+func setChargerAvailable(chargerID int64) (httpErrorCode int, error error) {
+	err := helper.UpdateChargerAvailability(chargerID, true)
 	if err != nil {
-		return err
+		log.Printf("Unable to execute the query. %v", err)
+		return http.StatusInternalServerError, fmt.Errorf("internal error")
 	}
+	return http.StatusOK, nil
+}
 
-	req, err := http.NewRequest(http.MethodPatch, paypalUrl, bytes.NewBuffer(httpBodyJson))
+func getPaypalOrderID(chargerID int64, userEmail string) (paypalOrderId string, err error) {
+	sqlStatement := `SELECT paypal_order_id FROM charging_processes WHERE (chargerid=$1 AND userid=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
+	err = database.DB.QueryRow(sqlStatement, chargerID, userEmail).Scan(&paypalOrderId)
 	if err != nil {
-		return err
+		log.Printf("Unable to execute the query. %v", err)
+		return "", fmt.Errorf("internal error")
 	}
+	return paypalOrderId, nil
+}
 
-	// add header
-	for key, value := range headerValues {
-		req.Header.Add(key, value)
-	}
-
-	// do request
-	client := &http.Client{}
-	resp, err := client.Do(req)
+func getCost(chargerID int64, chargedEnergyKWH float64) (cost models.Cost, err error) {
+	costPerKWH, err := helper.GetCostPerKWH(chargerID)
 	if err != nil {
-		return err
+		return models.Cost{}, fmt.Errorf("internal error")
 	}
 
-	// read response
-	defer resp.Body.Close()
-	responseBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	fmt.Println(resp.Status)
-	fmt.Println(string(responseBody))
-
-	return nil
+	return models.Cost{
+		Amount:   float32(float64(costPerKWH.Amount) * chargedEnergyKWH),
+		Currency: costPerKWH.Currency,
+	}, nil
 }

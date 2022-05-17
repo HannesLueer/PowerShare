@@ -48,7 +48,20 @@ function stop(chargerID: number, paypalOrderID: string): Promise<void> {
     });
 }
 
+function newOrder(chargerID: number): Promise<Response> {
+  const requestOptions = {
+    method: "POST",
+    headers: Object.assign(
+      { "Content-Type": "application/json" },
+      authHeader()
+    ),
+  };
+
+  return fetch(`${config.API_URL}/charging/newOrder`, requestOptions);
+}
+
 export const chargingService = {
   start,
   stop,
+  newOrder,
 };
