@@ -6,7 +6,8 @@
 
 <style scoped>
 main {
-  margin: 40px;
+  padding: 40px;
+  overflow: auto;
 }
 
 main :deep() *:first-child {

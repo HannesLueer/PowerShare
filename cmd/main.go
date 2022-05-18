@@ -4,6 +4,7 @@ import (
 	"PowerShare/config"
 	"PowerShare/database"
 	"PowerShare/frontend"
+	"PowerShare/handler/charging"
 	"PowerShare/handler/chargingStation"
 	"PowerShare/handler/currency"
 	"PowerShare/handler/user"
@@ -38,6 +39,7 @@ func main() {
 	err = godotenv.Load(
 		filepath.Join(config.GetConfigFilePath(), "db.env"),
 		filepath.Join(config.GetConfigFilePath(), "server.env"),
+		filepath.Join(config.GetConfigFilePath(), "paypal.env"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -79,6 +81,10 @@ func main() {
 	userRouter.HandleFunc("/", user.IsAuthorized(user.GetHandler)).Methods(http.MethodGet)
 	currencyRouter := apiRouter.PathPrefix("/currency").Subrouter()
 	currencyRouter.HandleFunc("/all", currency.OverviewHandler).Methods(http.MethodGet)
+	chargingRouter := apiRouter.PathPrefix("/charging").Subrouter()
+	chargingRouter.HandleFunc("/newOrder", user.IsAuthorized(charging.NewOrderHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/start/{chargerId}/{paypalOrderID}", user.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/stop/{chargerId}", user.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()
@@ -86,7 +92,8 @@ func main() {
 
 	// CORS
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*://localhost:3000"},
+		//AllowedOrigins:   []string{"*://localhost:3000"},
+		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		Debug:            false,
 		AllowedHeaders:   []string{"*"},

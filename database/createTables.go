@@ -19,10 +19,16 @@ func createChargersTable() {
 	DB.Exec(sqlStatement)
 }
 
+func createChargingProcessesTable() {
+	sqlStatement := `CREATE TABLE charging_processes(id serial, userId integer, chargerId integer, paypal_order_id text, amount numeric, PRIMARY KEY( id ))`
+	DB.Exec(sqlStatement)
+}
+
 func SetupAllTables() {
 	createCurrenciesTable()
 	createUsersTable()
 	createChargersTable()
+	createChargingProcessesTable()
 
 	log.Println("DB tables created")
 }

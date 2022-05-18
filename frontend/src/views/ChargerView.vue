@@ -62,6 +62,12 @@ onMounted(async () => {
 
     <div class="split50 textbox" v-if="charger != undefined">
       <h1>{{ charger?.title }}</h1>
+
+      <router-link :to="'/charging/' + charger?.id">
+        <button>use this charger</button>
+      </router-link>
+      <br />
+
       available: {{ !charger.isOccupied }}
 
       <h2>description</h2>
@@ -113,5 +119,9 @@ main.split50 > div.split50 {
 
 .textbox {
   overflow-y: auto;
+}
+
+button {
+  margin-bottom: 1em;
 }
 </style>

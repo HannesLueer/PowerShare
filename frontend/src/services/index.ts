@@ -1,8 +1,9 @@
 import { userService } from "@/services";
 
-export * from "./userService";
 export * from "./chargerService";
+export * from "./chargingService";
 export * from "./currencyService";
+export * from "./userService";
 
 export function handleResponse(response: Response) {
   return response.text().then((text: string) => {
