@@ -40,6 +40,7 @@ func main() {
 		filepath.Join(config.GetConfigFilePath(), "db.env"),
 		filepath.Join(config.GetConfigFilePath(), "server.env"),
 		filepath.Join(config.GetConfigFilePath(), "paypal.env"),
+		filepath.Join(config.GetConfigFilePath(), "shelly.env"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -85,6 +86,9 @@ func main() {
 	chargingRouter.HandleFunc("/newOrder", user.IsAuthorized(charging.NewOrderHandler)).Methods(http.MethodPost)
 	chargingRouter.HandleFunc("/start/{chargerId}/{paypalOrderID}", user.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
 	chargingRouter.HandleFunc("/stop/{chargerId}", user.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
+
+	//debug
+	chargingRouter.HandleFunc("/debug", charging.DebugHandler).Methods(http.MethodGet)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()
