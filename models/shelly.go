@@ -29,3 +29,13 @@ type ShellyOnOffCommandRequestDataParams struct {
 	Id   int    `json:"id"`   // DEVICE_CHANNEL
 	Turn string `json:"turn"` // COMMAND_ACTION "on" | "off"
 }
+
+type ShellyAddRemoveDeviceBody struct {
+	UserId     int      `json:"userId"`
+	DeviceId   int      `json:"deviceId"`
+	DeviceType string   `json:"deviceType"`
+	DeviceCode string   `json:"deviceCode"`
+	Action     string   `json:"action"`
+	Host       string   `json:"host"`
+	Name       []string `json:"name"`
+}

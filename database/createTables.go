@@ -24,11 +24,17 @@ func createChargingProcessesTable() {
 	DB.Exec(sqlStatement)
 }
 
+func createShellyDevicesTable() {
+	sqlStatement := `CREATE TABLE shelly_devices(device_id integer, user_id integer, device_type text, device_code text, host text, PRIMARY KEY( device_id ))`
+	DB.Exec(sqlStatement)
+}
+
 func SetupAllTables() {
 	createCurrenciesTable()
 	createUsersTable()
 	createChargersTable()
 	createChargingProcessesTable()
+	createShellyDevicesTable()
 
 	log.Println("DB tables created")
 }
