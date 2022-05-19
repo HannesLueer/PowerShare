@@ -5,6 +5,7 @@ import (
 	"PowerShare/helper/charging"
 	"PowerShare/helper/jwt"
 	"PowerShare/helper/paypal"
+	"PowerShare/helper/shelly"
 	"PowerShare/models"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -47,9 +48,9 @@ func StopHandler(w http.ResponseWriter, r *http.Request) {
 
 func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error error) {
 	// turn power off
-	err := charging.SwitchPower(chargerID, false)
+	statusCode, err := charging.SwitchPower(chargerID, shelly.Off)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return statusCode, err
 	}
 
 	// read electric meter

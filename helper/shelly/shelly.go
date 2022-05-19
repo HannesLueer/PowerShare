@@ -12,24 +12,22 @@ import (
 type Mode string
 
 const (
-	on  Mode = "on"
-	off Mode = "off"
+	On  Mode = "on"
+	Off Mode = "off"
 )
 
-func TurnPowerOn() {
-	turnPower("", -1, on) //TODO
-}
+func TurnPower(deviceId int64, mode Mode) (httpStatusCode int, err error) {
+	// get host
+	host, err := getHost(deviceId)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("unable to find the host of the shelly device")
+	}
 
-func TurnPowerOff() {
-	turnPower("", -1, off) //TODO
-}
-
-func turnPower(host string, deviceId int, mode Mode) (err error, httpStatusCode int) {
 	// open web socket
 	socketUrl := fmt.Sprintf("wss://%s:6113/shelly/wss/hk_sock?t=%s", host, getAccessToken())
 	conn, _, err := websocket.DefaultDialer.Dial(socketUrl, nil)
 	if err != nil {
-		return fmt.Errorf("error connecting to websocket server: %s", err), http.StatusInternalServerError
+		return http.StatusInternalServerError, fmt.Errorf("error connecting to websocket server: %s", err)
 	}
 	defer conn.Close()
 
@@ -48,14 +46,14 @@ func turnPower(host string, deviceId int, mode Mode) (err error, httpStatusCode 
 	}
 	requestJson, err := json.Marshal(request)
 	if err != nil {
-		return fmt.Errorf("error while setting up the request: %s", err), http.StatusInternalServerError
+		return http.StatusInternalServerError, fmt.Errorf("error while setting up the request: %s", err)
 	}
 
 	// write to web socket
 	err = conn.WriteMessage(websocket.TextMessage, requestJson)
 	if err != nil {
-		return fmt.Errorf("error during writing to websocket: %s", err), http.StatusInternalServerError
+		return http.StatusInternalServerError, fmt.Errorf("error during writing to websocket: %s", err)
 	}
 
-	return nil, http.StatusOK
+	return http.StatusOK, nil
 }

@@ -2,6 +2,8 @@ package charging
 
 import (
 	"PowerShare/database"
+	"PowerShare/helper/charger"
+	"PowerShare/helper/shelly"
 	"PowerShare/models"
 )
 
@@ -23,9 +25,9 @@ func GetElectricityAmount(chargerID int64) (amountKWH float64, err error) {
 	return 12, nil
 }
 
-func SwitchPower(chargerID int64, isOn bool) (err error) {
-	//TODO switch shelly of the charger
-	return nil
+func SwitchPower(chargerID int64, mode shelly.Mode) (httpStatusCode int, err error) {
+	shellyDeviceId := charger.GetShellyDeviceID(chargerID)
+	return shelly.TurnPower(shellyDeviceId, mode)
 }
 
 func GetCostPerKWH(chargerID int64) (cost models.Cost, err error) {

@@ -87,8 +87,6 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// include the technical data only if the charger belongs to the user
-	var testDebug = chargerHelper.GetUserId(charger.ID)
-	print(testDebug)
 	if userId == -1 || userId != chargerHelper.GetUserId(charger.ID) {
 		charger.TechnicalData = models.TechnicalData{}
 	}

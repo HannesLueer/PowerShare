@@ -16,7 +16,7 @@ type ShellyAccessTokenResponse struct {
 type ShellyOnOffCommandRequest struct {
 	Event    string                        `json:"event"`    // EVENT_NAME
 	TrId     int                           `json:"trid"`     // TRANSACTION_ID
-	DeviceId int                           `json:"deviceId"` // DEVICE_ID
+	DeviceId int64                         `json:"deviceId"` // DEVICE_ID
 	Data     ShellyOnOffCommandRequestData `json:"data"`
 }
 

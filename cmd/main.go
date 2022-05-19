@@ -91,9 +91,6 @@ func main() {
 	shellyRouter := apiRouter.PathPrefix("/shelly").Subrouter()
 	shellyRouter.HandleFunc("/callback", shelly.IntegratorAddRemoveCallbackHandler).Methods(http.MethodPost)
 
-	//debug
-	chargingRouter.HandleFunc("/debug", charging.DebugHandler).Methods(http.MethodGet)
-
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()
 	frontendRouter.PathPrefix("/").HandlerFunc(frontend.SpaHandler)

@@ -5,6 +5,7 @@ import (
 	"PowerShare/helper/charging"
 	"PowerShare/helper/jwt"
 	"PowerShare/helper/paypal"
+	"PowerShare/helper/shelly"
 	"PowerShare/models"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -90,9 +91,9 @@ func startCharging(chargerID int64, userEmail string, paypalOrderID string) (htt
 	// TODO activate / read electricity meter
 
 	// turn power on
-	err = charging.SwitchPower(chargerID, true)
+	statusCode, err := charging.SwitchPower(chargerID, shelly.On)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return statusCode, err
 	}
 
 	// write loading process in db
