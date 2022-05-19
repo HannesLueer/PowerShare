@@ -23,6 +23,9 @@ const defaultCharger = <ChargerData>{
     currency: <Currency>{ abbreviation: "EUR" },
   },
   isOccupied: false,
+  technicalData: {
+    shellyDeviceId: 0,
+  },
 };
 
 let mapCenter = ref<[number, number]>([51.5, 10]);
@@ -208,6 +211,20 @@ onMounted(async () => {
           </option>
         </select>
         <br />
+
+        <div v-if="charger.technicalData != undefined">
+          <label for="shellyDeviceId">Shelly Device-ID</label>
+          <input
+            v-model="charger.technicalData.shellyDeviceId"
+            type="number"
+            step="1"
+            id="shellyDeviceId"
+            required
+            placeholder="shelly device id"
+          />
+          <br />
+        </div>
+
         <button type="submit">submit</button>
       </form>
 
@@ -243,7 +260,7 @@ main > div.split50 {
   height: calc(100% - 4em);
 }
 
-div.textbox *:first-child {
+div.textbox form > label:first-child {
   margin-top: 0;
 }
 

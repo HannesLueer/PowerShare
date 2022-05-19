@@ -1,7 +1,9 @@
 package chargingStation
 
 import (
+	chargerHelper "PowerShare/helper/charger"
 	"PowerShare/helper/jwt"
+	"PowerShare/helper/user"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
@@ -68,10 +70,27 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get user email
+	tokenStr, _, _ := jwt.GetToken(r)
+	email, _ := jwt.GetEmailFromToken(tokenStr)
+
+	// get user id
+	userId, err := user.GetId(email)
+	if err != nil {
+		userId = -1
+	}
+
 	charger, err := getCharger(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
+	}
+
+	// include the technical data only if the charger belongs to the user
+	var testDebug = chargerHelper.GetUserId(charger.ID)
+	print(testDebug)
+	if userId == -1 || userId != chargerHelper.GetUserId(charger.ID) {
+		charger.TechnicalData = models.TechnicalData{}
 	}
 
 	jsonResp, err := json.Marshal(charger)
