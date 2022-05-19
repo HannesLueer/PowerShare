@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/websocket"
 	"math/rand"
 	"net/http"
-	"os"
 )
 
 type Mode string
@@ -26,11 +25,6 @@ func TurnPowerOff() {
 }
 
 func turnPower(host string, deviceId int, mode Mode) (err error, httpStatusCode int) {
-	println(mode)
-	println(mode == on)
-	println(os.Getenv("SHELLY_INTEGRATOR_TAG"))
-	println(getAccessToken())
-
 	// open web socket
 	socketUrl := fmt.Sprintf("wss://%s:6113/shelly/wss/hk_sock?t=%s", host, getAccessToken())
 	conn, _, err := websocket.DefaultDialer.Dial(socketUrl, nil)

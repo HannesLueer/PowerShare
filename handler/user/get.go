@@ -2,6 +2,7 @@ package user
 
 import (
 	"PowerShare/database"
+	"PowerShare/helper/jwt"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
@@ -18,7 +19,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tokenStr = r.Header["Token"][0]
-	var email, err = GetEmailFromToken(tokenStr)
+	var email, err = jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)

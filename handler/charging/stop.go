@@ -2,8 +2,9 @@ package charging
 
 import (
 	"PowerShare/database"
-	"PowerShare/handler/charging/helper"
-	"PowerShare/handler/user"
+	"PowerShare/helper/charging"
+	"PowerShare/helper/jwt"
+	"PowerShare/helper/paypal"
 	"PowerShare/models"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -23,12 +24,12 @@ func StopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get user email
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -46,13 +47,13 @@ func StopHandler(w http.ResponseWriter, r *http.Request) {
 
 func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error error) {
 	// turn power off
-	err := helper.SwitchPower(chargerID, false)
+	err := charging.SwitchPower(chargerID, false)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
 	// read electric meter
-	chargedEnergyKWH, err := helper.GetElectricityAmount(chargerID)
+	chargedEnergyKWH, err := charging.GetElectricityAmount(chargerID)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -69,12 +70,12 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 		return http.StatusInternalServerError, err
 	}
 
-	err = helper.UpdateOrderPaypal(paypalOrderID, cost)
+	err = paypal.UpdateOrderPaypal(paypalOrderID, cost)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
-	err = helper.CaptureFundsPaypal(paypalOrderID)
+	err = paypal.CaptureFundsPaypal(paypalOrderID)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -105,7 +106,7 @@ func writeAmountDB(userEmail string, chargerID int64, amount float64) (httpError
 }
 
 func setChargerAvailable(chargerID int64) (httpErrorCode int, error error) {
-	err := helper.UpdateChargerAvailability(chargerID, true)
+	err := charging.UpdateChargerAvailability(chargerID, true)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return http.StatusInternalServerError, fmt.Errorf("internal error")
@@ -124,7 +125,7 @@ func getPaypalOrderID(chargerID int64, userEmail string) (paypalOrderId string, 
 }
 
 func getCost(chargerID int64, chargedEnergyKWH float64) (cost models.Cost, err error) {
-	costPerKWH, err := helper.GetCostPerKWH(chargerID)
+	costPerKWH, err := charging.GetCostPerKWH(chargerID)
 	if err != nil {
 		return models.Cost{}, fmt.Errorf("internal error")
 	}

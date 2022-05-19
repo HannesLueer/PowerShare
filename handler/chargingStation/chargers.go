@@ -1,7 +1,7 @@
 package chargingStation
 
 import (
-	"PowerShare/handler/user"
+	"PowerShare/helper/jwt"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
@@ -28,13 +28,13 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func OverviewOwnHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -86,13 +86,13 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -118,13 +118,13 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -155,13 +155,13 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
