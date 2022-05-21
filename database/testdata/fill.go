@@ -77,6 +77,9 @@ func fillChargers() {
 				},
 				IsOccupied:  false,
 				Description: "Demo charger description.",
+				TechnicalData: models.TechnicalData{
+					ShellyDeviceId: int64(userCount*(numberChargers/numberUsers) + chargerCount),
+				},
 			},
 				fmt.Sprintf("user%d@test.com", userCount),
 			)

@@ -2,6 +2,7 @@ package user
 
 import (
 	"PowerShare/database"
+	"PowerShare/helper/jwt"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
@@ -12,13 +13,13 @@ import (
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	tokenStr, errCode, err := GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	oldEmail, err := GetEmailFromToken(tokenStr)
+	oldEmail, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -67,7 +68,7 @@ func update(oldEmail string, user models.User) (id int64, errCode int, error err
 	}
 
 	// hash password
-	user.Password, error = generateHashPassword(user.Password)
+	user.Password, error = jwt.GenerateHashPassword(user.Password)
 	if error != nil {
 		log.Println("error in password hash")
 		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")

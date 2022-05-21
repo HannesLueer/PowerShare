@@ -1,4 +1,4 @@
-package helper
+package paypal
 
 import (
 	"PowerShare/models"

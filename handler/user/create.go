@@ -2,6 +2,7 @@ package user
 
 import (
 	"PowerShare/database"
+	"PowerShare/helper/jwt"
 	"PowerShare/models"
 	"database/sql"
 	"encoding/json"
@@ -53,7 +54,7 @@ func SignUp(user models.User) (id int64, httpErrorCode int, error error) {
 		return -1, http.StatusBadRequest, fmt.Errorf("email already in use")
 	}
 
-	user.PasswordHash, err = generateHashPassword(user.Password)
+	user.PasswordHash, err = jwt.GenerateHashPassword(user.Password)
 	if err != nil {
 		log.Printf("error in password hash: %v", err)
 		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")

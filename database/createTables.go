@@ -15,7 +15,7 @@ func createUsersTable() {
 }
 
 func createChargersTable() {
-	sqlStatement := `CREATE TABLE chargers(id serial, title text, position point, cost numeric, currencyId integer, isOccupied boolean, description text, userId integer, PRIMARY KEY( id ))`
+	sqlStatement := `CREATE TABLE chargers(id serial, title text, position point, cost numeric, currencyId integer, isOccupied boolean, description text, shelly_device_id integer, userId integer, PRIMARY KEY( id ))`
 	DB.Exec(sqlStatement)
 }
 
@@ -24,11 +24,17 @@ func createChargingProcessesTable() {
 	DB.Exec(sqlStatement)
 }
 
+func createShellyDevicesTable() {
+	sqlStatement := `CREATE TABLE shelly_devices(device_id integer, user_id integer, device_type text, device_code text, host text, PRIMARY KEY( device_id ))`
+	DB.Exec(sqlStatement)
+}
+
 func SetupAllTables() {
 	createCurrenciesTable()
 	createUsersTable()
 	createChargersTable()
 	createChargingProcessesTable()
+	createShellyDevicesTable()
 
 	log.Println("DB tables created")
 }

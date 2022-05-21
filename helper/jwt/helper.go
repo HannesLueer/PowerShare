@@ -1,4 +1,4 @@
-package user
+package jwt
 
 import (
 	"fmt"
@@ -10,17 +10,17 @@ import (
 	"time"
 )
 
-func generateHashPassword(password string) (string, error) {
+func GenerateHashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
 }
 
-func checkPasswordHash(password, hash string) bool {
+func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-func generateJWT(email string, role int64) (string, error) {
+func GenerateJWT(email string, role int64) (string, error) {
 	var mySigningKey = []byte(os.Getenv("SIGNING_KEY"))
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)

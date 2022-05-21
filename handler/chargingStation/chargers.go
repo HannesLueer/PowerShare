@@ -1,7 +1,9 @@
 package chargingStation
 
 import (
-	"PowerShare/handler/user"
+	chargerHelper "PowerShare/helper/charger"
+	"PowerShare/helper/jwt"
+	"PowerShare/helper/user"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
@@ -28,13 +30,13 @@ func OverviewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func OverviewOwnHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -68,10 +70,25 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get user email
+	tokenStr, _, _ := jwt.GetToken(r)
+	email, _ := jwt.GetEmailFromToken(tokenStr)
+
+	// get user id
+	userId, err := user.GetId(email)
+	if err != nil {
+		userId = -1
+	}
+
 	charger, err := getCharger(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
+	}
+
+	// include the technical data only if the charger belongs to the user
+	if userId == -1 || userId != chargerHelper.GetUserId(charger.ID) {
+		charger.TechnicalData = models.TechnicalData{}
 	}
 
 	jsonResp, err := json.Marshal(charger)
@@ -86,13 +103,13 @@ func DetailsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -118,13 +135,13 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)
@@ -155,13 +172,13 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
-	tokenStr, errCode, err := user.GetToken(r)
+	tokenStr, errCode, err := jwt.GetToken(r)
 	if err != nil {
 		http.Error(w, err.Error(), errCode)
 		return
 	}
 
-	email, err := user.GetEmailFromToken(tokenStr)
+	email, err := jwt.GetEmailFromToken(tokenStr)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "unable to read token", http.StatusBadRequest)

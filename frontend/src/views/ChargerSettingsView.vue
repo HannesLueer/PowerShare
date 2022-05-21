@@ -13,6 +13,7 @@ import { useRoute } from "vue-router";
 import ErrorBox from "@/components/ErrorBox.vue";
 import SuccessBox from "@/components/SuccessBox.vue";
 import isEqual from "lodash.isequal";
+import { getShellyConnectLink } from "@/helpers";
 
 const defaultCharger = <ChargerData>{
   id: -1,
@@ -23,6 +24,9 @@ const defaultCharger = <ChargerData>{
     currency: <Currency>{ abbreviation: "EUR" },
   },
   isOccupied: false,
+  technicalData: {
+    shellyDeviceId: 0,
+  },
 };
 
 let mapCenter = ref<[number, number]>([51.5, 10]);
@@ -208,6 +212,25 @@ onMounted(async () => {
           </option>
         </select>
         <br />
+
+        <div v-if="charger.technicalData != undefined">
+          <label for="shellyConnect">Shelly Account</label>
+          Connect your Shelly account with PowerShare and grant access to the
+          device <br />
+          <a :href="getShellyConnectLink()"> Shelly &#8599;</a>
+
+          <label for="shellyDeviceId">Shelly Device-ID</label>
+          <input
+            v-model="charger.technicalData.shellyDeviceId"
+            type="number"
+            step="1"
+            id="shellyDeviceId"
+            required
+            placeholder="shelly device id"
+          />
+          <br />
+        </div>
+
         <button type="submit">submit</button>
       </form>
 
@@ -243,7 +266,7 @@ main > div.split50 {
   height: calc(100% - 4em);
 }
 
-div.textbox *:first-child {
+div.textbox form > label:first-child {
   margin-top: 0;
 }
 
@@ -269,7 +292,8 @@ label {
   margin-bottom: 1em;
 }
 
-button {
+button.delete,
+button[type="submit"] {
   margin-top: 2em;
 }
 

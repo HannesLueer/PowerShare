@@ -7,8 +7,10 @@ import (
 	"PowerShare/handler/charging"
 	"PowerShare/handler/chargingStation"
 	"PowerShare/handler/currency"
+	"PowerShare/handler/shelly"
 	"PowerShare/handler/user"
 	"PowerShare/helper"
+	"PowerShare/helper/jwt"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -40,6 +42,7 @@ func main() {
 		filepath.Join(config.GetConfigFilePath(), "db.env"),
 		filepath.Join(config.GetConfigFilePath(), "server.env"),
 		filepath.Join(config.GetConfigFilePath(), "paypal.env"),
+		filepath.Join(config.GetConfigFilePath(), "shelly.env"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -68,23 +71,25 @@ func main() {
 	apiRouter := r.PathPrefix("/api/v1").Subrouter()
 	chargerRouter := apiRouter.PathPrefix("/charger").Subrouter()
 	chargerRouter.HandleFunc("/all", chargingStation.OverviewHandler).Methods(http.MethodGet)
-	chargerRouter.HandleFunc("/my", user.IsAuthorized(chargingStation.OverviewOwnHandler)).Methods(http.MethodGet)
+	chargerRouter.HandleFunc("/my", jwt.IsAuthorized(chargingStation.OverviewOwnHandler)).Methods(http.MethodGet)
 	chargerRouter.HandleFunc("/{id}", chargingStation.DetailsHandler).Methods(http.MethodGet)
-	chargerRouter.HandleFunc("/", user.IsAuthorized(chargingStation.CreateHandler)).Methods(http.MethodPost)
-	chargerRouter.HandleFunc("/", user.IsAuthorized(chargingStation.UpdateHandler)).Methods(http.MethodPut)
-	chargerRouter.HandleFunc("/{id}", user.IsAuthorized(chargingStation.DeleteHandler)).Methods(http.MethodDelete)
+	chargerRouter.HandleFunc("/", jwt.IsAuthorized(chargingStation.CreateHandler)).Methods(http.MethodPost)
+	chargerRouter.HandleFunc("/", jwt.IsAuthorized(chargingStation.UpdateHandler)).Methods(http.MethodPut)
+	chargerRouter.HandleFunc("/{id}", jwt.IsAuthorized(chargingStation.DeleteHandler)).Methods(http.MethodDelete)
 	userRouter := apiRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/signup", user.SignUpHandler).Methods(http.MethodPost)
 	userRouter.HandleFunc("/signin", user.SignInHandler).Methods(http.MethodPost)
-	userRouter.HandleFunc("/", user.IsAuthorized(user.UpdateHandler)).Methods(http.MethodPut)
-	userRouter.HandleFunc("/", user.IsAuthorized(user.DeleteHandler)).Methods(http.MethodDelete)
-	userRouter.HandleFunc("/", user.IsAuthorized(user.GetHandler)).Methods(http.MethodGet)
+	userRouter.HandleFunc("/", jwt.IsAuthorized(user.UpdateHandler)).Methods(http.MethodPut)
+	userRouter.HandleFunc("/", jwt.IsAuthorized(user.DeleteHandler)).Methods(http.MethodDelete)
+	userRouter.HandleFunc("/", jwt.IsAuthorized(user.GetHandler)).Methods(http.MethodGet)
 	currencyRouter := apiRouter.PathPrefix("/currency").Subrouter()
 	currencyRouter.HandleFunc("/all", currency.OverviewHandler).Methods(http.MethodGet)
 	chargingRouter := apiRouter.PathPrefix("/charging").Subrouter()
-	chargingRouter.HandleFunc("/newOrder", user.IsAuthorized(charging.NewOrderHandler)).Methods(http.MethodPost)
-	chargingRouter.HandleFunc("/start/{chargerId}/{paypalOrderID}", user.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
-	chargingRouter.HandleFunc("/stop/{chargerId}", user.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/newOrder", jwt.IsAuthorized(charging.NewOrderHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/start/{chargerId}/{paypalOrderID}", jwt.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/stop/{chargerId}", jwt.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
+	shellyRouter := apiRouter.PathPrefix("/shelly").Subrouter()
+	shellyRouter.HandleFunc("/callback", shelly.IntegratorAddRemoveCallbackHandler).Methods(http.MethodPost)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()

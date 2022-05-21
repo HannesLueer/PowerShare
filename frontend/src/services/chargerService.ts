@@ -106,6 +106,7 @@ export class ChargerData {
   cost!: Cost;
   isOccupied!: boolean;
   description!: string;
+  technicalData?: TechnicalData;
 }
 
 export class Coordinate {
@@ -116,6 +117,10 @@ export class Coordinate {
 export class Cost {
   amount!: number;
   currency!: Currency;
+}
+
+export class TechnicalData {
+  shellyDeviceId!: number;
 }
 
 export const chargerService = {

@@ -2,6 +2,7 @@ package user
 
 import (
 	"PowerShare/database"
+	"PowerShare/helper/jwt"
 	"PowerShare/models"
 	"encoding/json"
 	"fmt"
@@ -41,13 +42,13 @@ func signIn(authDetails models.Authentication) (token models.Token, httpErrorCod
 		return t, http.StatusBadRequest, fmt.Errorf("username or password is incorrect")
 	}
 
-	check := checkPasswordHash(authDetails.Password, authUser.PasswordHash)
+	check := jwt.CheckPasswordHash(authDetails.Password, authUser.PasswordHash)
 
 	if !check {
 		return t, http.StatusBadRequest, fmt.Errorf("username or password is incorrect")
 	}
 
-	validToken, err := generateJWT(authUser.Email, authUser.Role)
+	validToken, err := jwt.GenerateJWT(authUser.Email, authUser.Role)
 	if err != nil {
 		return t, http.StatusInternalServerError, fmt.Errorf("failed to generate token")
 	}
