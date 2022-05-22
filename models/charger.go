@@ -16,5 +16,6 @@ type Coordinate struct {
 }
 
 type TechnicalData struct {
-	ShellyDeviceId int64 `json:"shellyDeviceId"`
+	ShellyDeviceId      int64  `json:"shellyDeviceId"`
+	SmartmeSerialNumber string `json:"smartmeSerialNumber"`
 }

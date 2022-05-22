@@ -42,11 +42,11 @@ func getAllCharger() ([]models.Charger, error) {
 }
 
 func getCharger(id int64) (models.Charger, error) {
-	sqlStatement := `SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied, chargers.description, chargers.shelly_device_id FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.id=$1`
+	sqlStatement := `SELECT chargers.id, chargers.title, chargers.position, chargers.cost, currencies.abbreviation, currencies.symbol, chargers.isoccupied, chargers.description, chargers.shelly_device_id, chargers.smartme_serial_number FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.id=$1`
 
 	var charger models.Charger
 	var coordinateStr string
-	err := database.DB.QueryRow(sqlStatement, id).Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied, &charger.Description, &charger.TechnicalData.ShellyDeviceId)
+	err := database.DB.QueryRow(sqlStatement, id).Scan(&charger.ID, &charger.Title, &coordinateStr, &charger.Cost.Amount, &charger.Cost.Currency.Abbreviation, &charger.Cost.Currency.Symbol, &charger.IsOccupied, &charger.Description, &charger.TechnicalData.ShellyDeviceId, &charger.TechnicalData.SmartmeSerialNumber)
 	if err != nil {
 		return charger, err
 	}

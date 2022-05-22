@@ -8,12 +8,13 @@ import {
   type Cost,
   type Currency,
   type ChargerData,
+  smartmeService,
 } from "@/services";
-import { useRoute } from "vue-router";
+import { useRoute, type LocationQuery } from "vue-router";
 import ErrorBox from "@/components/ErrorBox.vue";
 import SuccessBox from "@/components/SuccessBox.vue";
 import isEqual from "lodash.isequal";
-import { getShellyConnectLink } from "@/helpers";
+import { getShellyConnectLink, getSmartMeConnectLink } from "@/helpers";
 
 const defaultCharger = <ChargerData>{
   id: -1,
@@ -123,12 +124,25 @@ function updateMarkers() {
   markerTrigger.value++;
 }
 
+function handleSmartMeAuth(params: LocationQuery) {
+  // send code to backend
+  if (params.code != undefined) {
+    smartmeService.post_authCode(params.code.toString());
+  }
+
+  // use state to keep previously entered but not submitted values
+  if (params.state != undefined) {
+    charger.value = JSON.parse(params.state.toString());
+  }
+}
+
 onMounted(async () => {
   const route = useRoute();
   // used for classic URL navigation (e.g saved link)
   if (typeof route.params.id == "string")
     await getChargerData(parseInt(route.params.id));
   getCurrencies();
+  handleSmartMeAuth(route.query);
 
   // used for vue router navigation
   watch(route, async () => {
@@ -214,7 +228,7 @@ onMounted(async () => {
         <br />
 
         <div v-if="charger.technicalData != undefined">
-          <label for="shellyConnect">Shelly Account</label>
+          <label>Shelly Account</label>
           Connect your Shelly account with PowerShare and grant access to the
           device <br />
           <a :href="getShellyConnectLink()"> Shelly &#8599;</a>
@@ -227,6 +241,23 @@ onMounted(async () => {
             id="shellyDeviceId"
             required
             placeholder="shelly device id"
+          />
+          <br />
+
+          <label>smart-me Account</label>
+          Connect your Smart-Me account with PowerShare <br />
+          <a :href="getSmartMeConnectLink(useRoute().fullPath, charger)">
+            Smart-Me &#8599;</a
+          >
+
+          <label for="smartmeSerialNumber">smart-me serial number</label>
+          The Serial is the part before the "-". <br />
+          <input
+            v-model="charger.technicalData.smartmeSerialNumber"
+            type="text"
+            id="smartmeSerialNumber"
+            required
+            placeholder="serial number"
           />
           <br />
         </div>

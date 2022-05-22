@@ -78,7 +78,8 @@ func fillChargers() {
 				IsOccupied:  false,
 				Description: "Demo charger description.",
 				TechnicalData: models.TechnicalData{
-					ShellyDeviceId: int64(userCount*(numberChargers/numberUsers) + chargerCount),
+					ShellyDeviceId:      int64(userCount*(numberChargers/numberUsers) + chargerCount),
+					SmartmeSerialNumber: fmt.Sprintf("Smart%dMe", int64(userCount*(numberChargers/numberUsers)+chargerCount)),
 				},
 			},
 				fmt.Sprintf("user%d@test.com", userCount),
@@ -88,8 +89,8 @@ func fillChargers() {
 }
 
 func getRandomPosition() (models.Coordinate, string) {
-	lat := rand.Float64()*360 - 180
-	lng := rand.Float64()*180 - 90
+	lat := rand.Float64()*180 - 90
+	lng := rand.Float64()*360 - 180
 
 	return models.Coordinate{
 			Lat: lat,

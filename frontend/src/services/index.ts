@@ -3,6 +3,7 @@ import { userService } from "@/services";
 export * from "./chargerService";
 export * from "./chargingService";
 export * from "./currencyService";
+export * from "./smartmeService";
 export * from "./userService";
 
 export function handleResponse(response: Response) {

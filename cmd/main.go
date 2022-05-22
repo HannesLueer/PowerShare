@@ -8,6 +8,7 @@ import (
 	"PowerShare/handler/chargingStation"
 	"PowerShare/handler/currency"
 	"PowerShare/handler/shelly"
+	"PowerShare/handler/smartme"
 	"PowerShare/handler/user"
 	"PowerShare/helper"
 	"PowerShare/helper/jwt"
@@ -43,6 +44,7 @@ func main() {
 		filepath.Join(config.GetConfigFilePath(), "server.env"),
 		filepath.Join(config.GetConfigFilePath(), "paypal.env"),
 		filepath.Join(config.GetConfigFilePath(), "shelly.env"),
+		filepath.Join(config.GetConfigFilePath(), "smartme.env"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -90,6 +92,8 @@ func main() {
 	chargingRouter.HandleFunc("/stop/{chargerId}", jwt.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
 	shellyRouter := apiRouter.PathPrefix("/shelly").Subrouter()
 	shellyRouter.HandleFunc("/callback", shelly.IntegratorAddRemoveCallbackHandler).Methods(http.MethodPost)
+	smartmeRouter := apiRouter.PathPrefix("/smartme").Subrouter()
+	smartmeRouter.HandleFunc("/authcode/{code}", jwt.IsAuthorized(smartme.AuthorizationCodeHandler)).Methods(http.MethodPost)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()
@@ -97,8 +101,7 @@ func main() {
 
 	// CORS
 	c := cors.New(cors.Options{
-		//AllowedOrigins:   []string{"*://localhost:3000"},
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"*://localhost:3000"},
 		AllowCredentials: true,
 		Debug:            false,
 		AllowedHeaders:   []string{"*"},

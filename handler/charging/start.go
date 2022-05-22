@@ -6,6 +6,7 @@ import (
 	"PowerShare/helper/jwt"
 	"PowerShare/helper/paypal"
 	"PowerShare/helper/shelly"
+	"PowerShare/helper/smartme"
 	"PowerShare/models"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -88,7 +89,11 @@ func startCharging(chargerID int64, userEmail string, paypalOrderID string) (htt
 		return http.StatusBadRequest, fmt.Errorf("charger is not available")
 	}
 
-	// TODO activate / read electricity meter
+	// read electricity meter
+	counterReadingKWH, err := smartme.ReadCounter(userEmail, chargerID)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("an error occurred during communication with the meter")
+	}
 
 	// turn power on
 	statusCode, err := charging.SwitchPower(chargerID, shelly.On)
@@ -97,16 +102,16 @@ func startCharging(chargerID int64, userEmail string, paypalOrderID string) (htt
 	}
 
 	// write loading process in db
-	writeChargingProcessDB(userEmail, chargerID, paypalOrderID)
+	writeChargingProcessDB(userEmail, chargerID, paypalOrderID, counterReadingKWH)
 
 	return http.StatusOK, nil
 }
 
-func writeChargingProcessDB(userEmail string, chargerID int64, paypalOrderID string) (httpErrorCode int, error error) {
+func writeChargingProcessDB(userEmail string, chargerID int64, paypalOrderID string, meterStartCount float64) (httpErrorCode int, error error) {
 	// add charging process
-	sqlStatement := `INSERT INTO charging_processes (userid, chargerid, paypal_order_id) VALUES (((SELECT id FROM users WHERE email=$1)), $2, $3) RETURNING id`
+	sqlStatement := `INSERT INTO charging_processes (user_id, charger_id, paypal_order_id, meter_start_count) VALUES (((SELECT id FROM users WHERE email=$1)), $2, $3, $4) RETURNING id`
 	var id int64
-	err := database.DB.QueryRow(sqlStatement, userEmail, chargerID, paypalOrderID).Scan(&id)
+	err := database.DB.QueryRow(sqlStatement, userEmail, chargerID, paypalOrderID, meterStartCount).Scan(&id)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return http.StatusInternalServerError, fmt.Errorf("internal error")

@@ -121,6 +121,7 @@ export class Cost {
 
 export class TechnicalData {
   shellyDeviceId!: number;
+  smartmeSerialNumber!: string;
 }
 
 export const chargerService = {

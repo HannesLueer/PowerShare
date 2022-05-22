@@ -54,7 +54,7 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 	}
 
 	// read electric meter
-	chargedEnergyKWH, err := charging.GetElectricityAmount(chargerID)
+	chargedEnergyKWH, err := charging.GetElectricityAmount(userEmail, chargerID)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -96,7 +96,7 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 }
 
 func writeAmountDB(userEmail string, chargerID int64, amount float64) (httpErrorCode int, error error) {
-	sqlStatement := `UPDATE charging_processes SET amount=$3 WHERE (chargerid=$1 AND userid=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
+	sqlStatement := `UPDATE charging_processes SET amount=$3 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
 	var id int64
 	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount).Scan(&id)
 	if err != nil {
@@ -116,7 +116,7 @@ func setChargerAvailable(chargerID int64) (httpErrorCode int, error error) {
 }
 
 func getPaypalOrderID(chargerID int64, userEmail string) (paypalOrderId string, err error) {
-	sqlStatement := `SELECT paypal_order_id FROM charging_processes WHERE (chargerid=$1 AND userid=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
+	sqlStatement := `SELECT paypal_order_id FROM charging_processes WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
 	err = database.DB.QueryRow(sqlStatement, chargerID, userEmail).Scan(&paypalOrderId)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)

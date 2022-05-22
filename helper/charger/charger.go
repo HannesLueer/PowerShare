@@ -24,3 +24,13 @@ func GetShellyDeviceID(chargerID int64) (shellyDeviceId int64) {
 	}
 	return shellyDeviceId
 }
+
+func GetSmartmeSerialNumber(chargerID int64) (smartmeSerialNumber string) {
+	sqlStatement := `SELECT smartme_serial_number FROM chargers WHERE chargers.id=$1`
+	err := database.DB.QueryRow(sqlStatement, chargerID).Scan(&smartmeSerialNumber)
+	if err != nil {
+		smartmeSerialNumber = ""
+		log.Printf("Unable to execute the query. %v", err)
+	}
+	return smartmeSerialNumber
+}

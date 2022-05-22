@@ -4,6 +4,7 @@ import (
 	"PowerShare/database"
 	"PowerShare/helper/charger"
 	"PowerShare/helper/shelly"
+	"PowerShare/helper/smartme"
 	"PowerShare/models"
 )
 
@@ -19,10 +20,16 @@ func UpdateChargerAvailability(chargerID int64, isAvailable bool) (err error) {
 	return err
 }
 
-func GetElectricityAmount(chargerID int64) (amountKWH float64, err error) {
-	//TODO return the amount of electricity measured by the electric meter of the charger
+func GetElectricityAmount(userEmail string, chargerID int64) (amountKWH float64, err error) {
+	// read end count from api
+	endCount, err := smartme.ReadCounter(userEmail, chargerID)
 
-	return 12, nil
+	// read start count from db
+	startCount := 0.0
+	sqlStatement := `SELECT meter_start_count FROM charging_processes WHERE amount IS NULL AND charger_id=$1 ORDER BY id DESC`
+	err = database.DB.QueryRow(sqlStatement, chargerID).Scan(&startCount)
+
+	return endCount - startCount, err
 }
 
 func SwitchPower(chargerID int64, mode shelly.Mode) (httpStatusCode int, err error) {

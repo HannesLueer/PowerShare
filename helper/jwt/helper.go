@@ -37,7 +37,7 @@ func GenerateJWT(email string, role int64) (string, error) {
 	tokenString, err := token.SignedString(mySigningKey)
 
 	if err != nil {
-		fmt.Errorf("something went wrong: %s", err.Error())
+		err = fmt.Errorf("something went wrong: %s", err.Error())
 		return "", err
 	}
 	return tokenString, nil

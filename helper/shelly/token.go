@@ -33,9 +33,9 @@ func getNewAccessToken() (token string, duration time.Duration, err error) {
 	urlValues := url.Values{}
 	urlValues.Set("itg", os.Getenv("SHELLY_INTEGRATOR_TAG"))
 	urlValues.Set("token", os.Getenv("SHELLY_INTEGRATOR_TOKEN"))
-	url := fmt.Sprintf("%s/integrator/get_access_token?%s", os.Getenv("SHELLY_API_BASE_URL"), urlValues.Encode())
+	apiUrl := fmt.Sprintf("%s/integrator/get_access_token?%s", os.Getenv("SHELLY_API_BASE_URL"), urlValues.Encode())
 
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(urlValues.Encode()))
+	req, err := http.NewRequest(http.MethodPost, apiUrl, strings.NewReader(urlValues.Encode()))
 	if err != nil {
 		return "", -1, err
 	}
