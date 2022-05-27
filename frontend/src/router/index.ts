@@ -45,11 +45,6 @@ const router = createRouter({
       component: () => import("../views/ChargerSettingsView.vue"),
     },
     {
-      path: "/charging/:id",
-      name: "charging",
-      component: () => import("../views/ChargingView.vue"),
-    },
-    {
       path: "/:pathMatch(.*)*",
       name: "error",
       component: () => import("../views/ErrorView.vue"),

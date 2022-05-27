@@ -1,24 +1,23 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
 
-function post_authCode(code: string) {
+async function get_newMandateURL(): Promise<string> {
   const requestOptions = {
-    method: "POST",
+    method: "GET",
     headers: Object.assign(
       { "Content-Type": "application/json" },
       authHeader()
     ),
   };
 
-  return fetch(`${config.API_URL}/smartme/authcode/${code}`, requestOptions)
-    .then((response) => {
-      if (!response.ok) console.error(response.body);
-    })
+  return await fetch(`${config.API_URL}/gocardless/newMandate`, requestOptions)
+    .then(async (response) => response.text())
     .catch((error) => {
       console.error(error);
+      return "";
     });
 }
 
-export const smartmeService = {
-  post_authCode,
+export const gocardlessService = {
+  get_newMandateURL,
 };

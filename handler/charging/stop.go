@@ -3,8 +3,8 @@ package charging
 import (
 	"PowerShare/database"
 	"PowerShare/helper/charging"
+	"PowerShare/helper/gocardless"
 	"PowerShare/helper/jwt"
-	"PowerShare/helper/paypal"
 	"PowerShare/helper/shelly"
 	"PowerShare/models"
 	"fmt"
@@ -65,24 +65,19 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 		return http.StatusInternalServerError, err
 	}
 
-	// update payment
-	paypalOrderID, err := getPaypalOrderID(chargerID, userEmail)
+	// create payment
+	mandateId, err := gocardless.GetMandateIdFromEmail(userEmail)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
-	err = paypal.UpdateOrderPaypal(paypalOrderID, cost)
-	if err != nil {
-		return http.StatusInternalServerError, err
-	}
-
-	err = paypal.CaptureFundsPaypal(paypalOrderID)
+	paymentId, err := gocardless.CreatingPayment(cost, mandateId)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
 	// update database
-	httpErrorCode, err = writeAmountDB(userEmail, chargerID, chargedEnergyKWH)
+	httpErrorCode, err = writeAmountDB(userEmail, chargerID, chargedEnergyKWH, paymentId)
 	if err != nil {
 		return httpErrorCode, err
 	}
@@ -95,10 +90,10 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 	return http.StatusOK, nil
 }
 
-func writeAmountDB(userEmail string, chargerID int64, amount float64) (httpErrorCode int, error error) {
-	sqlStatement := `UPDATE charging_processes SET amount=$3 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
+func writeAmountDB(userEmail string, chargerID int64, amount float64, paymentId string) (httpErrorCode int, error error) {
+	sqlStatement := `UPDATE charging_processes SET amount=$3, payment_id=$4 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
 	var id int64
-	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount).Scan(&id)
+	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount, paymentId).Scan(&id)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return http.StatusInternalServerError, fmt.Errorf("internal error")
@@ -113,16 +108,6 @@ func setChargerAvailable(chargerID int64) (httpErrorCode int, error error) {
 		return http.StatusInternalServerError, fmt.Errorf("internal error")
 	}
 	return http.StatusOK, nil
-}
-
-func getPaypalOrderID(chargerID int64, userEmail string) (paypalOrderId string, err error) {
-	sqlStatement := `SELECT paypal_order_id FROM charging_processes WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
-	err = database.DB.QueryRow(sqlStatement, chargerID, userEmail).Scan(&paypalOrderId)
-	if err != nil {
-		log.Printf("Unable to execute the query. %v", err)
-		return "", fmt.Errorf("internal error")
-	}
-	return paypalOrderId, nil
 }
 
 func getCost(chargerID int64, chargedEnergyKWH float64) (cost models.Cost, err error) {

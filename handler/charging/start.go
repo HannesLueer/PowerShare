@@ -3,11 +3,10 @@ package charging
 import (
 	"PowerShare/database"
 	"PowerShare/helper/charging"
+	"PowerShare/helper/gocardless"
 	"PowerShare/helper/jwt"
-	"PowerShare/helper/paypal"
 	"PowerShare/helper/shelly"
 	"PowerShare/helper/smartme"
-	"PowerShare/models"
 	"fmt"
 	"github.com/gorilla/mux"
 	"log"
@@ -24,7 +23,6 @@ func StartHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	paypalOrderID := vars["paypalOrderID"]
 
 	// get user email
 	tokenStr, errCode, err := jwt.GetToken(r)
@@ -40,49 +38,22 @@ func StartHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// start charging
-	httpErrorCode, err := startCharging(chargerId, email, paypalOrderID)
+	httpErrorCode, err := startCharging(chargerId, email)
 	if err != nil {
 		http.Error(w, err.Error(), httpErrorCode)
 		return
 	}
 
-	//debug
-	fmt.Println("11111111111111")
-	fmt.Println("GetPaypalOrder: ")
-	resp, _, err := paypal.GetPaypalOrder(paypalOrderID)
-	fmt.Println(resp)
-	fmt.Println(err)
-	fmt.Println("--------------")
-
-	paypal.UpdateOrderPaypal(paypalOrderID, models.Cost{
-		Amount: 123.45,
-		Currency: models.Currency{
-			Abbreviation: "USD",
-			Symbol:       "$",
-		},
-	})
-	fmt.Println("--------------")
-
-	fmt.Println("22222222222222")
-	resp, _, _ = paypal.GetPaypalOrder(paypalOrderID)
-	fmt.Println(resp)
-	//debug end
-
 	return
 }
 
-func NewOrderHandler(w http.ResponseWriter, r *http.Request) {
-	respStr, err := paypal.CreatePaypalOrder()
+func startCharging(chargerID int64, userEmail string) (httpErrorCode int, error error) {
+	// check mandate of user
+	_, err := gocardless.GetMandateIdFromEmail(userEmail)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return http.StatusForbidden, fmt.Errorf("no mandate was found")
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(respStr))
-}
-
-func startCharging(chargerID int64, userEmail string, paypalOrderID string) (httpErrorCode int, error error) {
 	// check if charging station is available
 	isChargerAvailable, err := charging.IsChargerAvailable(chargerID)
 	if err != nil || !isChargerAvailable {
@@ -102,16 +73,16 @@ func startCharging(chargerID int64, userEmail string, paypalOrderID string) (htt
 	}
 
 	// write loading process in db
-	writeChargingProcessDB(userEmail, chargerID, paypalOrderID, counterReadingKWH)
+	writeChargingProcessDB(userEmail, chargerID, counterReadingKWH)
 
 	return http.StatusOK, nil
 }
 
-func writeChargingProcessDB(userEmail string, chargerID int64, paypalOrderID string, meterStartCount float64) (httpErrorCode int, error error) {
+func writeChargingProcessDB(userEmail string, chargerID int64, meterStartCount float64) (httpErrorCode int, error error) {
 	// add charging process
-	sqlStatement := `INSERT INTO charging_processes (user_id, charger_id, paypal_order_id, meter_start_count) VALUES (((SELECT id FROM users WHERE email=$1)), $2, $3, $4) RETURNING id`
+	sqlStatement := `INSERT INTO charging_processes (user_id, charger_id, meter_start_count) VALUES (((SELECT id FROM users WHERE email=$1)), $2, $3) RETURNING id`
 	var id int64
-	err := database.DB.QueryRow(sqlStatement, userEmail, chargerID, paypalOrderID, meterStartCount).Scan(&id)
+	err := database.DB.QueryRow(sqlStatement, userEmail, chargerID, meterStartCount).Scan(&id)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return http.StatusInternalServerError, fmt.Errorf("internal error")

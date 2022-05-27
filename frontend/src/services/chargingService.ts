@@ -1,8 +1,7 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
-import { handleResponse } from "@/services";
 
-function start(chargerID: number, paypalOrderID: string): Promise<void> {
+function start(chargerID: number): Promise<string> {
   const requestOptions = {
     method: "POST",
     headers: Object.assign(
@@ -11,13 +10,12 @@ function start(chargerID: number, paypalOrderID: string): Promise<void> {
     ),
   };
 
-  return fetch(
-    `${config.API_URL}/charging/start/${chargerID}/${paypalOrderID}`,
-    requestOptions
-  )
-    .then(handleResponse)
-    .then((charger) => {
-      return charger;
+  return fetch(`${config.API_URL}/charging/start/${chargerID}`, requestOptions)
+    .then((response) => {
+      if (!response.ok) {
+        console.error(response.statusText);
+      }
+      return response.text();
     })
     .catch((error) => {
       console.error(error);
@@ -25,7 +23,7 @@ function start(chargerID: number, paypalOrderID: string): Promise<void> {
     });
 }
 
-function stop(chargerID: number, paypalOrderID: string): Promise<void> {
+function stop(chargerID: number): Promise<string> {
   const requestOptions = {
     method: "POST",
     headers: Object.assign(
@@ -34,13 +32,12 @@ function stop(chargerID: number, paypalOrderID: string): Promise<void> {
     ),
   };
 
-  return fetch(
-    `${config.API_URL}/charging/stop/${chargerID}/${paypalOrderID}`,
-    requestOptions
-  )
-    .then(handleResponse)
-    .then((charger) => {
-      return charger;
+  return fetch(`${config.API_URL}/charging/stop/${chargerID}`, requestOptions)
+    .then((response) => {
+      if (!response.ok) {
+        console.error(response.statusText);
+      }
+      return response.text();
     })
     .catch((error) => {
       console.error(error);
@@ -48,20 +45,24 @@ function stop(chargerID: number, paypalOrderID: string): Promise<void> {
     });
 }
 
-function newOrder(chargerID: number): Promise<Response> {
+function isThisUserCharging(chargerID: number): Promise<string> {
   const requestOptions = {
-    method: "POST",
-    headers: Object.assign(
-      { "Content-Type": "application/json" },
-      authHeader()
-    ),
+    method: "GET",
+    headers: Object.assign(authHeader()),
   };
 
-  return fetch(`${config.API_URL}/charging/newOrder`, requestOptions);
+  return fetch(`${config.API_URL}/charging/is/${chargerID}`, requestOptions)
+    .then((response) => {
+      return response.text();
+    })
+    .catch((error) => {
+      console.error(error);
+      return "a communication error occurred";
+    });
 }
 
 export const chargingService = {
   start,
   stop,
-  newOrder,
+  isThisUserCharging,
 };

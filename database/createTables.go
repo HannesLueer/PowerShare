@@ -20,7 +20,7 @@ func createChargersTable() {
 }
 
 func createChargingProcessesTable() {
-	sqlStatement := `CREATE TABLE charging_processes(id serial, user_id integer, charger_id integer, paypal_order_id text, meter_start_count numeric, amount numeric, PRIMARY KEY( id ))`
+	sqlStatement := `CREATE TABLE charging_processes(id serial, user_id integer, charger_id integer, payment_id text, meter_start_count numeric, amount numeric, PRIMARY KEY( id ))`
 	DB.Exec(sqlStatement)
 }
 

@@ -3,11 +3,20 @@ import Map from "../components/Map.vue";
 import { useRoute, type RouteLocationNormalizedLoaded } from "vue-router";
 import { onMounted, ref, watch } from "vue";
 import { chargerService, type ChargerData } from "@/services";
+import InfoBox from "../components/InfoBox.vue";
+import { gocardlessService, chargingService } from "@/services";
+import ErrorBox from "../components/ErrorBox.vue";
+import SuccessBox from "@/components/SuccessBox.vue";
 
 let mapCenter = ref<[number, number]>([51.5, 10]);
 let invalidateSizeTrigger = ref<number>(0);
 
 var charger = ref<ChargerData>();
+
+let newMandateURL = ref<string>("");
+let isCharging = ref<boolean>(false);
+let errMsg = ref<string>("");
+let sucMsg = ref<string>("");
 
 async function getChargerData(id: number): Promise<void> {
   if (isNaN(id)) {
@@ -26,10 +35,67 @@ async function getChargerData(id: number): Promise<void> {
 }
 
 async function onLoad(route: RouteLocationNormalizedLoaded) {
+  hideMessageBoxes();
+
   if (typeof route.params.id == "string")
     await getChargerData(parseInt(route.params.id));
 
   invalidateSizeTrigger.value++;
+}
+
+async function getNewMandateURL() {
+  newMandateURL.value = await gocardlessService.get_newMandateURL();
+}
+
+async function startCharging() {
+  hideMessageBoxes();
+
+  if (charger.value != undefined) {
+    const data = await chargingService.start(charger.value.id);
+    if (data == "") {
+      displaySuccess("Charging started successfully");
+    } else {
+      displayError(data);
+    }
+  }
+
+  updateIsCharging();
+}
+
+async function stopCharging() {
+  hideMessageBoxes();
+  if (charger.value != undefined) {
+    const data = await chargingService.stop(charger.value.id);
+    if (data == "") {
+      displaySuccess("Charging stopped successfully");
+    } else {
+      displayError(data);
+    }
+  }
+  updateIsCharging();
+}
+
+async function updateIsCharging() {
+  if (charger.value != undefined)
+    isCharging.value =
+      (await chargingService.isThisUserCharging(charger.value.id)) == "true"
+        ? true
+        : false;
+}
+
+function displayError(text: string) {
+  errMsg.value = text;
+  sucMsg.value = "";
+}
+
+function displaySuccess(text: string) {
+  errMsg.value = "";
+  sucMsg.value = text;
+}
+
+function hideMessageBoxes() {
+  errMsg.value = "";
+  sucMsg.value = "";
 }
 
 onMounted(async () => {
@@ -37,6 +103,7 @@ onMounted(async () => {
 
   // used for classic URL navigation (someone sends link to charger)
   onLoad(route);
+  getNewMandateURL();
 
   // used for vue router navigation
   watch(route, async () => {
@@ -63,9 +130,21 @@ onMounted(async () => {
     <div class="split50 textbox" v-if="charger != undefined">
       <h1>{{ charger?.title }}</h1>
 
-      <router-link :to="'/charging/' + charger?.id">
-        <button>use this charger</button>
-      </router-link>
+      <InfoBox
+        >To activate a charging station please create a mandate at gocardless
+        via <a :href="newMandateURL">this link</a>. Please use the same email
+        address as for PowerShare. If you have already created a mandate, simply
+        click on the button to unlock the charger.</InfoBox
+      >
+
+      <button v-if="!isCharging && !charger.isOccupied" @click="startCharging">
+        start charging
+      </button>
+      <button v-if="isCharging" @click="stopCharging">stop charging</button>
+
+      <ErrorBox :msg="errMsg" v-if="errMsg != ''"></ErrorBox>
+      <SuccessBox :msg="sucMsg" v-if="sucMsg != ''"></SuccessBox>
+
       <br />
 
       available: {{ !charger.isOccupied }}

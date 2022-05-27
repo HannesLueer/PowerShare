@@ -48,6 +48,7 @@
 
   --color-errorbox-background: var(--red500);
   --color-successbox-background: var(--green300);
+  --color-infobox-background: var(--gray100);
 
   --color-delete-button-background: var(--red500);
   --color-delete-button-hover-background: var(--red550);
@@ -80,6 +81,7 @@
 
   --color-errorbox-background: var(--red600);
   --color-successbox-background: var(--green600);
+  --color-infobox-background: var(--gray800);
 
   --color-delete-button-background: var(--red600);
   --color-delete-button-border: var(--gray300);

@@ -7,6 +7,7 @@ import (
 	"PowerShare/handler/charging"
 	"PowerShare/handler/chargingStation"
 	"PowerShare/handler/currency"
+	"PowerShare/handler/gocardless"
 	"PowerShare/handler/shelly"
 	"PowerShare/handler/smartme"
 	"PowerShare/handler/user"
@@ -42,9 +43,9 @@ func main() {
 	err = godotenv.Load(
 		filepath.Join(config.GetConfigFilePath(), "db.env"),
 		filepath.Join(config.GetConfigFilePath(), "server.env"),
-		filepath.Join(config.GetConfigFilePath(), "paypal.env"),
 		filepath.Join(config.GetConfigFilePath(), "shelly.env"),
 		filepath.Join(config.GetConfigFilePath(), "smartme.env"),
+		filepath.Join(config.GetConfigFilePath(), "gocardless.env"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -87,13 +88,15 @@ func main() {
 	currencyRouter := apiRouter.PathPrefix("/currency").Subrouter()
 	currencyRouter.HandleFunc("/all", currency.OverviewHandler).Methods(http.MethodGet)
 	chargingRouter := apiRouter.PathPrefix("/charging").Subrouter()
-	chargingRouter.HandleFunc("/newOrder", jwt.IsAuthorized(charging.NewOrderHandler)).Methods(http.MethodPost)
-	chargingRouter.HandleFunc("/start/{chargerId}/{paypalOrderID}", jwt.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/start/{chargerId}", jwt.IsAuthorized(charging.StartHandler)).Methods(http.MethodPost)
 	chargingRouter.HandleFunc("/stop/{chargerId}", jwt.IsAuthorized(charging.StopHandler)).Methods(http.MethodPost)
+	chargingRouter.HandleFunc("/is/{chargerId}", jwt.IsAuthorized(charging.IsUserChargingHandler)).Methods(http.MethodGet)
 	shellyRouter := apiRouter.PathPrefix("/shelly").Subrouter()
 	shellyRouter.HandleFunc("/callback", shelly.IntegratorAddRemoveCallbackHandler).Methods(http.MethodPost)
 	smartmeRouter := apiRouter.PathPrefix("/smartme").Subrouter()
 	smartmeRouter.HandleFunc("/authcode/{code}", jwt.IsAuthorized(smartme.AuthorizationCodeHandler)).Methods(http.MethodPost)
+	gocardlessRouter := apiRouter.PathPrefix("/gocardless").Subrouter()
+	gocardlessRouter.HandleFunc("/newMandate", jwt.IsAuthorized(gocardless.NewMandateHandler)).Methods(http.MethodGet)
 
 	// serve frontend
 	frontendRouter := r.PathPrefix("/").Subrouter()

@@ -36,7 +36,7 @@ func readCounter(userId int64, serialNumber string) (counterKWH float64, err err
 	}
 	urlValues := url.Values{}
 	urlValues.Set("serial", serialNumber)
-	apiUrl := fmt.Sprintf("%s/DeviceBySerial%s", os.Getenv("SMARTME_API_BASE_URL"), urlValues.Encode())
+	apiUrl := fmt.Sprintf("%s/DeviceBySerial?%s", os.Getenv("SMARTME_API_BASE_URL"), urlValues.Encode())
 
 	req, err := http.NewRequest(http.MethodPost, apiUrl, strings.NewReader(urlValues.Encode()))
 	if err != nil {
@@ -69,6 +69,9 @@ func readCounter(userId int64, serialNumber string) (counterKWH float64, err err
 
 	var device models.SmartmeDevice
 	err = json.Unmarshal(respBodyStr, &device)
+	if err != nil {
+		return -1, err
+	}
 
 	// calculate kwh
 	counterKWH, err = calculateAmountInKWH(device.CounterReading, device.CounterReadingUnit)
