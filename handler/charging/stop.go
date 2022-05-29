@@ -2,10 +2,13 @@ package charging
 
 import (
 	"PowerShare/database"
+	"PowerShare/helper/charger"
 	"PowerShare/helper/charging"
 	"PowerShare/helper/gocardless"
 	"PowerShare/helper/jwt"
+	"PowerShare/helper/paypal"
 	"PowerShare/helper/shelly"
+	"PowerShare/helper/user"
 	"PowerShare/models"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -76,8 +79,19 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 		return http.StatusInternalServerError, err
 	}
 
+	// create payout
+	ownerEmail, err := user.GetEmail(charger.GetUserId(chargerID))
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	payoutResp, err := paypal.CreatePayoutPaypal(ownerEmail, getPayoutAmount(cost))
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
 	// update database
-	httpErrorCode, err = writeAmountDB(userEmail, chargerID, chargedEnergyKWH, paymentId)
+	httpErrorCode, err = writeAmountDB(userEmail, chargerID, chargedEnergyKWH, paymentId, payoutResp.BatchHeader.PayoutBatchId)
 	if err != nil {
 		return httpErrorCode, err
 	}
@@ -90,10 +104,10 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 	return http.StatusOK, nil
 }
 
-func writeAmountDB(userEmail string, chargerID int64, amount float64, paymentId string) (httpErrorCode int, error error) {
-	sqlStatement := `UPDATE charging_processes SET amount=$3, payment_id=$4 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL) RETURNING id`
+func writeAmountDB(userEmail string, chargerID int64, amount float64, paymentId string, payoutId string) (httpErrorCode int, error error) {
+	sqlStatement := `UPDATE charging_processes SET amount=$3, payment_id=$4, payout_id=$5 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL) RETURNING id`
 	var id int64
-	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount, paymentId).Scan(&id)
+	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount, paymentId, payoutId).Scan(&id)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return http.StatusInternalServerError, fmt.Errorf("internal error")
@@ -120,4 +134,13 @@ func getCost(chargerID int64, chargedEnergyKWH float64) (cost models.Cost, err e
 		Amount:   float32(float64(costPerKWH.Amount) * chargedEnergyKWH),
 		Currency: costPerKWH.Currency,
 	}, nil
+}
+
+func getPayoutAmount(cost models.Cost) (payoutAmount models.Cost) {
+	const factor = 0.8
+
+	return models.Cost{
+		Amount:   cost.Amount * factor,
+		Currency: cost.Currency,
+	}
 }

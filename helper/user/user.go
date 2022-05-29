@@ -15,3 +15,13 @@ func GetId(email string) (id int64, err error) {
 	}
 	return id, nil
 }
+
+func GetEmail(id int64) (email string, err error) {
+	sqlSelectStatement := `SELECT email FROM users WHERE id=$1`
+	err = database.DB.QueryRow(sqlSelectStatement, id).Scan(&email)
+	if err != nil {
+		log.Println(err)
+		return "", fmt.Errorf("internal error")
+	}
+	return email, nil
+}

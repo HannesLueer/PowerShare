@@ -46,6 +46,7 @@ func main() {
 		filepath.Join(config.GetConfigFilePath(), "shelly.env"),
 		filepath.Join(config.GetConfigFilePath(), "smartme.env"),
 		filepath.Join(config.GetConfigFilePath(), "gocardless.env"),
+		filepath.Join(config.GetConfigFilePath(), "paypal.env"),
 	)
 	if err != nil {
 		log.Fatal(err)
