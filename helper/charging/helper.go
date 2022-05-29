@@ -16,7 +16,7 @@ func IsChargerAvailable(chargerID int64) (isAvailable bool, err error) {
 
 func UpdateChargerAvailability(chargerID int64, isAvailable bool) (err error) {
 	sqlStatement := `UPDATE chargers SET isoccupied=$2 WHERE id=$1 RETURNING id`
-	err = database.DB.QueryRow(sqlStatement, chargerID, isAvailable).Scan(&chargerID)
+	err = database.DB.QueryRow(sqlStatement, chargerID, !isAvailable).Scan(&chargerID)
 	return err
 }
 
@@ -39,6 +39,6 @@ func SwitchPower(chargerID int64, mode shelly.Mode) (httpStatusCode int, err err
 
 func GetCostPerKWH(chargerID int64) (cost models.Cost, err error) {
 	sqlStatement := `SELECT chargers.cost, currencies.abbreviation, currencies.symbol FROM chargers INNER JOIN currencies ON chargers.currencyId=currencies.id WHERE chargers.id=$1`
-	err = database.DB.QueryRow(sqlStatement, chargerID).Scan(&cost.Amount, cost.Currency.Abbreviation, cost.Currency.Symbol)
+	err = database.DB.QueryRow(sqlStatement, chargerID).Scan(&cost.Amount, &cost.Currency.Abbreviation, &cost.Currency.Symbol)
 	return cost, err
 }

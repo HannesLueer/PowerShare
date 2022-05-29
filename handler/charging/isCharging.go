@@ -33,9 +33,9 @@ func IsUserChargingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	isUserChargingAtCharger(userEmail, chargerId)
+	isCharging := isUserChargingAtCharger(userEmail, chargerId)
 
-	w.Write([]byte("false"))
+	w.Write([]byte(strconv.FormatBool(isCharging)))
 }
 
 func isUserChargingAtCharger(userEmail string, chargerId int64) bool {

@@ -71,7 +71,7 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 		return http.StatusInternalServerError, err
 	}
 
-	paymentId, err := gocardless.CreatingPayment(cost, mandateId)
+	paymentId, err := gocardless.CreatingPaymentV2(cost, mandateId)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
@@ -91,7 +91,7 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 }
 
 func writeAmountDB(userEmail string, chargerID int64, amount float64, paymentId string) (httpErrorCode int, error error) {
-	sqlStatement := `UPDATE charging_processes SET amount=$3, payment_id=$4 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL)`
+	sqlStatement := `UPDATE charging_processes SET amount=$3, payment_id=$4 WHERE (charger_id=$1 AND user_id=(SELECT id FROM users WHERE email=$2) AND amount IS NULL) RETURNING id`
 	var id int64
 	err := database.DB.QueryRow(sqlStatement, chargerID, userEmail, amount, paymentId).Scan(&id)
 	if err != nil {

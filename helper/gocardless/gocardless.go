@@ -53,6 +53,28 @@ func CreatingPayment(cost models.Cost, mandateId string) (paymentId string, err 
 	return payment.Id, err
 }
 
+// CreatingPaymentV2 creates a new payment for the mandate with the specified id using API v2
+func CreatingPaymentV2(cost models.Cost, mandateId string) (paymentId string, err error) {
+	if client2 == nil {
+		setup2()
+	}
+
+	paymentCreateParams := gocardless2.PaymentCreateParams{
+		Amount:   int(cost.Amount * 100), // 1000 --> 10 GBP in pence
+		Currency: cost.Currency.Abbreviation,
+		Links: gocardless2.PaymentCreateParamsLinks{
+			Mandate: mandateId,
+		},
+	}
+
+	payment, err := client2.Payments.Create(context.TODO(), paymentCreateParams)
+
+	if err != nil {
+		return "", err
+	}
+	return payment.Id, nil
+}
+
 // NewMandate returns the url to a new mandate
 func NewMandate(emailAddress string) (url string, err error) {
 	brId, err := createBillingRequest()
@@ -79,7 +101,7 @@ func createBillingRequest() (billingRequestId string, err error) {
 		models.BillingRequestBody{
 			BillingRequests: models.BillingRequests{
 				MandateRequest: models.MandateRequest{
-					Scheme: "bacs",
+					Scheme: "sepa_core",
 				},
 			},
 		})
@@ -190,11 +212,18 @@ func GetMandateId(customerID string) (string, error) {
 
 	mandateListParams := gocardless2.MandateListParams{
 		Customer: customerID,
+		Scheme: []string{
+			"sepa_core",
+		},
 	}
 
 	mandateListResult, err := client2.Mandates.List(context.TODO(), mandateListParams)
 	if err != nil {
 		return "", err
+	}
+
+	if len(mandateListResult.Mandates) == 0 {
+		return "", fmt.Errorf("no mandate was found with the scheme sepa")
 	}
 
 	return mandateListResult.Mandates[0].Id, nil

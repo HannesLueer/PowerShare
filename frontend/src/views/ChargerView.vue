@@ -18,7 +18,7 @@ let isCharging = ref<boolean>(false);
 let errMsg = ref<string>("");
 let sucMsg = ref<string>("");
 
-async function getChargerData(id: number): Promise<void> {
+async function setChargerData(id: number): Promise<void> {
   if (isNaN(id)) {
     charger.value = undefined;
     return;
@@ -38,9 +38,11 @@ async function onLoad(route: RouteLocationNormalizedLoaded) {
   hideMessageBoxes();
 
   if (typeof route.params.id == "string")
-    await getChargerData(parseInt(route.params.id));
+    await setChargerData(parseInt(route.params.id));
 
   invalidateSizeTrigger.value++;
+
+  updateIsCharging();
 }
 
 async function getNewMandateURL() {
@@ -60,6 +62,7 @@ async function startCharging() {
   }
 
   updateIsCharging();
+  if (charger.value != undefined) setChargerData(charger.value.id);
 }
 
 async function stopCharging() {
@@ -73,6 +76,7 @@ async function stopCharging() {
     }
   }
   updateIsCharging();
+  if (charger.value != undefined) setChargerData(charger.value.id);
 }
 
 async function updateIsCharging() {
@@ -130,7 +134,7 @@ onMounted(async () => {
     <div class="split50 textbox" v-if="charger != undefined">
       <h1>{{ charger?.title }}</h1>
 
-      <InfoBox
+      <InfoBox v-if="!isCharging && !charger.isOccupied"
         >To activate a charging station please create a mandate at gocardless
         via <a :href="newMandateURL">this link</a>. Please use the same email
         address as for PowerShare. If you have already created a mandate, simply
@@ -145,7 +149,7 @@ onMounted(async () => {
       <ErrorBox :msg="errMsg" v-if="errMsg != ''"></ErrorBox>
       <SuccessBox :msg="sucMsg" v-if="sucMsg != ''"></SuccessBox>
 
-      <br />
+      <br v-if="isCharging || !charger.isOccupied" />
 
       available: {{ !charger.isOccupied }}
 
