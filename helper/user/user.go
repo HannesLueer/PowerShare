@@ -16,8 +16,8 @@ func GetId(email string) (id int64, err error) {
 	return id, nil
 }
 
-func GetEmail(id int64) (email string, err error) {
-	sqlSelectStatement := `SELECT email FROM users WHERE id=$1`
+func GetPayoutEmail(id int64) (email string, err error) {
+	sqlSelectStatement := `SELECT paypal_email FROM users WHERE id=$1`
 	err = database.DB.QueryRow(sqlSelectStatement, id).Scan(&email)
 	if err != nil {
 		log.Println(err)

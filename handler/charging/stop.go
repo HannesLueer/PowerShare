@@ -80,12 +80,12 @@ func stopCharging(chargerID int64, userEmail string) (httpErrorCode int, error e
 	}
 
 	// create payout
-	ownerEmail, err := user.GetEmail(charger.GetUserId(chargerID))
+	payoutEmail, err := user.GetPayoutEmail(charger.GetUserId(chargerID))
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
 
-	payoutResp, err := paypal.CreatePayoutPaypal(ownerEmail, getPayoutAmount(cost))
+	payoutResp, err := paypal.CreatePayoutPaypal(payoutEmail, getPayoutAmount(cost))
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
