@@ -10,7 +10,7 @@ func createCurrenciesTable() {
 }
 
 func createUsersTable() {
-	sqlStatement := `CREATE TABLE users (id serial, name text, email text, password text, role int, PRIMARY KEY( id ))`
+	sqlStatement := `CREATE TABLE users (id serial, name text, email text, paypal_email text, password text, role int, PRIMARY KEY( id ))`
 	DB.Exec(sqlStatement)
 }
 

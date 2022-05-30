@@ -37,8 +37,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func get(email string) (user models.User, errCode int, error error) {
-	sqlSelectStatement := `SELECT name, email, role FROM users WHERE email=$1`
-	err := database.DB.QueryRow(sqlSelectStatement, email).Scan(&user.Name, &user.Email, &user.Role)
+	sqlSelectStatement := `SELECT name, email, paypal_email, role FROM users WHERE email=$1`
+	err := database.DB.QueryRow(sqlSelectStatement, email).Scan(&user.Name, &user.Email, &user.PaypalEmail, &user.Role)
 	if err != nil {
 		log.Println(err)
 		return models.User{}, http.StatusInternalServerError, fmt.Errorf("internal error")

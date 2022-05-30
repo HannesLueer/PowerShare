@@ -8,6 +8,7 @@ import { userService } from "@/services";
 let name = ref<string>("");
 let email = ref<string>("");
 let password = ref<string>("");
+let paypalEmail = ref<string>("");
 
 let errMsg = ref<string>("");
 let sucMsg = ref<string>("");
@@ -16,7 +17,8 @@ async function updateUser() {
   const data = await userService.update(
     name.value,
     email.value,
-    password.value
+    password.value,
+    paypalEmail.value
   );
   if (data.token) {
     errMsg.value = "";
@@ -44,6 +46,7 @@ async function getCurrentValues() {
     errMsg.value = "";
     name.value = data.name;
     email.value = data.email;
+    paypalEmail.value = data.paypalEmail;
   } else {
     errMsg.value = data;
   }
@@ -92,6 +95,18 @@ onMounted(async () => {
         autocomplete="current-password"
       />
       <br />
+
+      <label for="paypalEmail">Paypal Email</label>
+      <input
+        v-model="paypalEmail"
+        type="text"
+        id="paypalEmail"
+        required
+        placeholder="paypal email"
+        autocomplete="email"
+      />
+      <br />
+
       <button type="submit">submit changes</button>
     </form>
 

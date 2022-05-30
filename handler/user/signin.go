@@ -34,7 +34,7 @@ func signIn(authDetails models.Authentication) (token models.Token, httpErrorCod
 	var authUser models.User
 	var t models.Token
 	sqlSelectStatement := `SELECT * FROM users WHERE email=$1`
-	err := database.DB.QueryRow(sqlSelectStatement, authDetails.Email).Scan(&authUser.ID, &authUser.Name, &authUser.Email, &authUser.PasswordHash, &authUser.Role)
+	err := database.DB.QueryRow(sqlSelectStatement, authDetails.Email).Scan(&authUser.ID, &authUser.Name, &authUser.Email, &authUser.PaypalEmail, &authUser.PasswordHash, &authUser.Role)
 	if err != nil {
 		log.Println(err)
 	}

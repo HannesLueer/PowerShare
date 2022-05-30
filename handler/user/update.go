@@ -75,8 +75,8 @@ func update(oldEmail string, user models.User) (id int64, errCode int, error err
 	}
 
 	// update user in database
-	sqlUpdateStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE email=$1 RETURNING id`
-	error = database.DB.QueryRow(sqlUpdateStatement, oldEmail, user.Name, user.Email, user.Password).Scan(&id)
+	sqlUpdateStatement := `UPDATE users SET name=$2, email=$3, paypal_email=$4, password=$5 WHERE email=$1 RETURNING id`
+	error = database.DB.QueryRow(sqlUpdateStatement, oldEmail, user.Name, user.Email, user.PaypalEmail, user.Password).Scan(&id)
 	if error != nil {
 		log.Println(error)
 		return id, http.StatusInternalServerError, fmt.Errorf("internal error")

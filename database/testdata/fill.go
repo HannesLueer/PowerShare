@@ -55,6 +55,7 @@ func fillUsers() {
 			Password:     "123",
 			PasswordHash: "",
 			Role:         0,
+			PaypalEmail:  fmt.Sprintf("user%d@test.com", userCount),
 		})
 		if err != nil {
 			log.Fatal(err)

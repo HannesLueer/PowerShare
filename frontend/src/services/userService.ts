@@ -73,14 +73,19 @@ function register(name: string, email: string, password: string) {
     });
 }
 
-function update(name: string, email: string, password: string) {
+function update(
+  name: string,
+  email: string,
+  password: string,
+  paypalEmail: string
+) {
   const requestOptions = {
     method: "PUT",
     headers: Object.assign(
       { "Content-Type": "application/json" },
       authHeader()
     ),
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, paypalEmail }),
   };
 
   return fetch(`${config.API_URL}/user/`, requestOptions)

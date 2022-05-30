@@ -61,8 +61,8 @@ func SignUp(user models.User) (id int64, httpErrorCode int, error error) {
 	}
 
 	//insert user details in database
-	sqlInsertStatement := `INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id`
-	err = database.DB.QueryRow(sqlInsertStatement, user.Name, user.Email, user.PasswordHash, user.Role).Scan(&id)
+	sqlInsertStatement := `INSERT INTO users (name, email, paypal_email, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	err = database.DB.QueryRow(sqlInsertStatement, user.Name, user.Email, user.PaypalEmail, user.PasswordHash, user.Role).Scan(&id)
 	if err != nil {
 		log.Printf("Unable to execute the query. %v", err)
 		return -1, http.StatusInternalServerError, fmt.Errorf("internal error")

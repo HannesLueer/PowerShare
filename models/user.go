@@ -7,6 +7,7 @@ type User struct {
 	Password     string `json:"password"`
 	PasswordHash string `json:"-"`
 	Role         int64  `json:"role"`
+	PaypalEmail  string `json:"paypalEmail"`
 }
 
 type Authentication struct {
