@@ -51,7 +51,6 @@ export default defineComponent({
         { to: "/", text: "Home" },
         { to: "/charger/map", text: "Map" },
         { to: "/about", text: "About" },
-        { to: "/charger/4085", text: "Charger" },
       ],
 
       linksRight: {
