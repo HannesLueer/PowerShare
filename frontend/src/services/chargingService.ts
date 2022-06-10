@@ -1,5 +1,6 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
+import { userService } from "@/services";
 
 function start(chargerID: number): Promise<string> {
   const requestOptions = {
@@ -45,7 +46,11 @@ function stop(chargerID: number): Promise<string> {
     });
 }
 
-function isThisUserCharging(chargerID: number): Promise<string> {
+async function isThisUserCharging(chargerID: number): Promise<string> {
+  if (!userService.isLoggedin.value) {
+    return "false";
+  }
+
   const requestOptions = {
     method: "GET",
     headers: Object.assign(authHeader()),

@@ -1,7 +1,12 @@
 import { config } from "@/config";
 import { authHeader } from "@/helpers";
+import { userService } from "@/services";
 
 async function get_newMandateURL(): Promise<string> {
+  if (!userService.isLoggedin.value) {
+    return "/login";
+  }
+
   const requestOptions = {
     method: "GET",
     headers: Object.assign(
