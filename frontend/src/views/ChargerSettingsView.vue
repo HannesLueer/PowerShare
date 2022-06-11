@@ -246,9 +246,7 @@ onMounted(async () => {
 
           <label>smart-me Account</label>
           Connect your Smart-Me account with PowerShare <br />
-          <a :href="getSmartMeConnectLink(useRoute().fullPath, charger)">
-            Smart-Me &#8599;</a
-          >
+          <a :href="getSmartMeConnectLink(charger)"> Smart-Me &#8599;</a>
 
           <label for="smartmeSerialNumber">smart-me serial number</label>
           The Serial is the part before the "-". <br />
