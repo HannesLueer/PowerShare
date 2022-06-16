@@ -101,7 +101,6 @@ onMounted(async () => {
         v-model="paypalEmail"
         type="text"
         id="paypalEmail"
-        required
         placeholder="paypal email"
         autocomplete="email"
       />

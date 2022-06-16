@@ -28,7 +28,7 @@ func GenerateJWT(email string, role int64) (string, error) {
 	claims["authorized"] = true
 	claims["email"] = email
 	claims["role"] = role
-	minutes, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
+	minutes, err := strconv.Atoi(os.Getenv("DURATION_OF_TOKEN_VALIDITY_MINUTES"))
 	if err != nil {
 		minutes = 30
 	}

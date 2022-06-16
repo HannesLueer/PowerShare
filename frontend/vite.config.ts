@@ -25,7 +25,8 @@ export default defineConfig({
       manifest: {
         name: "PowerShare",
         short_name: "PowerShare",
-        description: "PowerShare allows drivers of electric vehicles to rent out private charging stations and use those of other users.",
+        description:
+          "PowerShare allows drivers of electric vehicles to rent out private charging stations and use those of other users.",
         theme_color: "#00e388",
         start_url: "",
         display: "standalone",
