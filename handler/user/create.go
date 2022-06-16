@@ -3,6 +3,7 @@ package user
 import (
 	"PowerShare/database"
 	"PowerShare/helper/jwt"
+	userHelper "PowerShare/helper/user"
 	"PowerShare/models"
 	"database/sql"
 	"encoding/json"
@@ -19,6 +20,11 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, "error in reading body", http.StatusBadRequest)
+		return
+	}
+
+	if !userHelper.IsUserValid(user) {
+		http.Error(w, "invalid body", http.StatusBadRequest)
 		return
 	}
 

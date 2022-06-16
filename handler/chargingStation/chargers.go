@@ -123,6 +123,11 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !chargerHelper.IsChargerValid(charger) {
+		http.Error(w, "invalid body", http.StatusBadRequest)
+		return
+	}
+
 	var id = CreateCharger(charger, email)
 
 	jsonResp, err := json.Marshal(id)
@@ -152,6 +157,11 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(r.Body).Decode(&charger)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if !chargerHelper.IsChargerValid(charger) {
+		http.Error(w, "invalid body", http.StatusBadRequest)
 		return
 	}
 

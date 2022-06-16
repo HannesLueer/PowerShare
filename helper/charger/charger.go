@@ -2,6 +2,7 @@ package charger
 
 import (
 	"PowerShare/database"
+	"PowerShare/models"
 	"log"
 )
 
@@ -33,4 +34,22 @@ func GetSmartmeSerialNumber(chargerID int64) (smartmeSerialNumber string) {
 		log.Printf("Unable to execute the query. %v", err)
 	}
 	return smartmeSerialNumber
+}
+
+func IsChargerValid(charger models.Charger) bool {
+	return charger.Title != "" &&
+		isLngValid(charger.Position.Lng) &&
+		isLatValid(charger.Position.Lat) &&
+		charger.TechnicalData.SmartmeSerialNumber != "" &&
+		charger.TechnicalData.ShellyDeviceId >= 0 &&
+		charger.Cost.Amount > 0 &&
+		charger.Cost.Currency.Abbreviation != ""
+}
+
+func isLatValid(lat float64) bool {
+	return lat >= -90 && lat <= 90
+}
+
+func isLngValid(lng float64) bool {
+	return lng >= -180 && lng <= 180
 }
